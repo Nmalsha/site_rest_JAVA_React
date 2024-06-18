@@ -1,6 +1,10 @@
 package com.doranco.resto.entity;
 
+import java.util.List;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Menu {
@@ -17,9 +21,9 @@ public class Menu {
 
     private double price;
 
-    // Getters and setters
-    // Constructors
-    // Other fields and methods as needed
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("menu-comments")
+    private List<Comment> comments;
 
     public Long getId() {
         return id;
@@ -59,5 +63,12 @@ public class Menu {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

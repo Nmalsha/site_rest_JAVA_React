@@ -28,13 +28,7 @@ const Signup = ({ onSignup }) => {
       );
       localStorage.setItem("User-Signup-Data", response.data.nickname);
       console.log("User registered:", response.data);
-      // Hash the password
-      // const hashedPassword = await bcrypt.hash(password, 10);
-      // const signupData = { nickname, email, password: hashedPassword };
-      // console.log("signupdata", signupData);
-      // const signupData = { email, password };
-      // localStorage.setItem("User-Signup-Data", JSON.stringify(signupData));
-      // onSignup(signupData);
+
       handleClose();
     } catch (error) {
       console.error("Error hashing password:", error);

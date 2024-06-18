@@ -127,10 +127,11 @@ public class UserController {
     
         // Fetch user details from repository
         Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
-        System.out.println("test I am here " );
+        
         if (optionalUser.isPresent()) {
             User existingUser = optionalUser.get();
             String nickname = existingUser.getNickname();
+        
             System.out.println("Retrieved nickname: " + nickname);
             // Return response with JWT and nickname
             return ResponseEntity.ok(new JwtResponse(jwt, nickname));

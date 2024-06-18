@@ -18,6 +18,10 @@ public class Comment {
     @JsonBackReference
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_id")
+    @JsonBackReference("menu-comments")
+    private Menu menu;
     // Getters and setters
     // Constructors
     // Other fields and methods as needed
@@ -36,6 +40,14 @@ public class Comment {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
     }
 
     public User getUser() {

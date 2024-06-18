@@ -8,7 +8,6 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = ({ cart, onDeleteItem, userNickname }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // const [userEmail, setUserEmail] = useState("");
   const [isSignup, setIsSignup] = useState(false);
   const [userDisplayNickname, setUserDisplayNickname] = useState("");
 
@@ -24,29 +23,15 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
     if (session) {
       setIsAuthenticated(true);
     }
-    // const nameOfTheLoggedUser = localStorage.getItem("nickname");
-    // if (nameOfTheLoggedUser) {
-    //   setUserNickname(nameOfTheLoggedUser);
-    // }
-
-    // const userData = localStorage.getItem("User-Signup-Data");
-    // if (userData) {
-    //   setIsSignup(userData);
-    // }
   }, []);
   console.log("navbar nickname display", userNickname);
-  // const handleSignup = (signupData) => {
-
-  // };
 
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("nickname");
     setIsAuthenticated(false);
-
-    // setIsSignup(false);
   };
-
+  const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
   return (
     <nav
       className="navbar navbar-expand-lg navbar-light fixed-top"
@@ -83,7 +68,7 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
                 Home
               </a>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <a
                 className="nav-link"
                 href="#diches"
@@ -91,7 +76,7 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
               >
                 Diches
               </a>
-            </li>
+            </li> */}
             <li className="nav-item">
               <a
                 className="nav-link"
@@ -152,9 +137,6 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
             <li className="nav-item">
               <div className="dropdown">
                 <button
-                  // className={`btn btn-secondary dropdown-toggle ${
-                  //   isDropdownOpen ? "show" : ""
-                  // }`}
                   className="btn btn-secondary dropdown-toggle"
                   type="button"
                   id="dropdownMenuButton"
@@ -194,6 +176,14 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
                     ))
                   ) : (
                     <li className="dropdown-item">Cart is empty</li>
+                  )}
+                  {cart.length > 0 && (
+                    <li
+                      className="dropdown-item"
+                      style={{ fontWeight: "bold" }}
+                    >
+                      Total: ${totalPrice}
+                    </li>
                   )}
                 </ul>
               </div>
