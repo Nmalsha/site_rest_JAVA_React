@@ -10,6 +10,7 @@ const Navbar = ({ cart, onDeleteItem }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [isSignup, setIsSignup] = useState(false);
+  // const [userNickname, setUserNickname] = useState("");
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 

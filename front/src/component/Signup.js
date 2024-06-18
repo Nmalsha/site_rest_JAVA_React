@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import bcrypt from "bcryptjs";
+import axios from "./axios";
 
 const Signup = ({ onSignup }) => {
   const [show, setShow] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [roles, setRoles] = useState(["ROLE_USER"]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -16,7 +19,7 @@ const Signup = ({ onSignup }) => {
     try {
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
-      const signupData = { email, password: hashedPassword };
+      const signupData = { nickname, email, password: hashedPassword };
       console.log("signupdata", signupData);
       // const signupData = { email, password };
       localStorage.setItem("User-Signup-Data", JSON.stringify(signupData));
@@ -26,12 +29,7 @@ const Signup = ({ onSignup }) => {
       console.error("Error hashing password:", error);
     }
   };
-  // const handleSignup = () => {
-  //   let signupInfo = localStorage.getItem("User-Signup-Data");
-  //   onSignup(signupInfo);
-  //   console.log("check what is onSignup", onSignup(signupInfo));
-  //   handleClose();
-  // };
+
   return (
     <>
       <Button
@@ -48,6 +46,16 @@ const Signup = ({ onSignup }) => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="">
+              <Form.Label>Nick Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nick name"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                required
+              />
+            </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control
