@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import bcrypt from "bcryptjs";
-import axios from "./axios";
+
+import axios from "axios";
 
 const Signup = ({ onSignup }) => {
   const [show, setShow] = useState(false);
@@ -17,13 +17,24 @@ const Signup = ({ onSignup }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const response = await axios.post(
+        "http://localhost:8081/api/user/register",
+        {
+          email,
+          nickname,
+          password,
+          roles,
+        }
+      );
+      localStorage.setItem("User-Signup-Data", response.data.nickname);
+      console.log("User registered:", response.data);
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const signupData = { nickname, email, password: hashedPassword };
-      console.log("signupdata", signupData);
+      // const hashedPassword = await bcrypt.hash(password, 10);
+      // const signupData = { nickname, email, password: hashedPassword };
+      // console.log("signupdata", signupData);
       // const signupData = { email, password };
-      localStorage.setItem("User-Signup-Data", JSON.stringify(signupData));
-      onSignup(signupData);
+      // localStorage.setItem("User-Signup-Data", JSON.stringify(signupData));
+      // onSignup(signupData);
       handleClose();
     } catch (error) {
       console.error("Error hashing password:", error);

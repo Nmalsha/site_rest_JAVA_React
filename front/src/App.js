@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "./component/Navbar";
+import Login from "./component/Login";
 import Header from "./component/Header";
 import Diches from "./component/Diches";
 import About from "./component/About";
@@ -8,6 +9,7 @@ import "./App.css";
 
 function App() {
   const [cart, setCart] = useState([]);
+  const [userNickname, setUserNickname] = useState("");
 
   const handleAddToCart = (selectedDish) => {
     setCart([...cart, selectedDish]);
@@ -17,9 +19,18 @@ function App() {
     setCart(newCart);
   };
 
+  const handleLogin = (nickname) => {
+    setUserNickname(nickname);
+  };
+
   return (
     <div className="App">
-      <Navbar cart={cart} onDeleteItem={handleRemoveFromCart} />
+      <Login onLogin={handleLogin} />
+      <Navbar
+        cart={cart}
+        onDeleteItem={handleRemoveFromCart}
+        userNickname={userNickname}
+      />
       <Header />
       <Diches handleAddToCart={handleAddToCart} />
       <About />

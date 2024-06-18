@@ -6,11 +6,11 @@ import { Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const Navbar = ({ cart, onDeleteItem }) => {
+const Navbar = ({ cart, onDeleteItem, userNickname }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
+  // const [userEmail, setUserEmail] = useState("");
   const [isSignup, setIsSignup] = useState(false);
-  // const [userNickname, setUserNickname] = useState("");
+  const [userDisplayNickname, setUserDisplayNickname] = useState("");
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -20,28 +20,31 @@ const Navbar = ({ cart, onDeleteItem }) => {
 
   useEffect(() => {
     // Check local storage for session
-    const session = localStorage.getItem("session");
+    const session = localStorage.getItem("jwtToken");
     if (session) {
       setIsAuthenticated(true);
-      setUserEmail(session);
     }
+    // const nameOfTheLoggedUser = localStorage.getItem("nickname");
+    // if (nameOfTheLoggedUser) {
+    //   setUserNickname(nameOfTheLoggedUser);
+    // }
 
-    const userData = localStorage.getItem("User-Signup-Data");
-    if (userData) {
-      setIsSignup(userData);
-    }
+    // const userData = localStorage.getItem("User-Signup-Data");
+    // if (userData) {
+    //   setIsSignup(userData);
+    // }
   }, []);
-
+  console.log("navbar nickname display", userNickname);
   // const handleSignup = (signupData) => {
 
   // };
 
   const handleLogout = () => {
-    localStorage.removeItem("session");
-    localStorage.removeItem("User-Signup-Data");
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("nickname");
     setIsAuthenticated(false);
-    setUserEmail("");
-    setIsSignup(false);
+
+    // setIsSignup(false);
   };
 
   return (
@@ -112,7 +115,7 @@ const Navbar = ({ cart, onDeleteItem }) => {
               <>
                 <li className="nav-item">
                   <span className="nav-link" style={{ fontSize: "24px" }}>
-                    Hello, {userEmail}
+                    Hello {userDisplayNickname}
                   </span>
                 </li>
                 <li className="nav-item">
@@ -129,9 +132,9 @@ const Navbar = ({ cart, onDeleteItem }) => {
               <>
                 <li className="nav-item">
                   <LoginModal
-                    onLogin={(email) => {
+                    onLogin={(userDisplayNickname) => {
                       setIsAuthenticated(true);
-                      setUserEmail(email);
+                      setUserDisplayNickname(userDisplayNickname);
                     }}
                   />
                 </li>

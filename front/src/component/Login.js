@@ -1,58 +1,55 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import bcrypt from "bcryptjs";
+import axios from "axios";
 
 const Login = ({ onLogin }) => {
   const [show, setShow] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nickname, setNickname] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("user entered email", email);
-    // console.log("user entered pass", password);
-    const getUserData = localStorage.getItem("User-Signup-Data");
+    try {
+      const response = await axios.post(
+        "http://localhost:8081/api/user/login",
+        {
+          email,
+          password,
+        }
+      );
 
-    let emailFromLocalStorage;
-    const emailRegex = /"email"\s*:\s*"([^"]+)"/;
-    const emailCatchFromLocal = getUserData.match(emailRegex);
-    if (emailCatchFromLocal && emailCatchFromLocal.length > 1) {
-      emailFromLocalStorage = emailCatchFromLocal[1];
-    } else {
-      console.log("Email address not found");
-    }
+      // localStorage.setItem("User-Signup-Data", response.data.nickname);
+      localStorage.setItem("jwtToken", response.data.token);
+      setNickname(response.data.nickname);
+      onLogin(response.data.nickname);
+      console.log("User logged in", response.data);
+      console.log("User nickname", response.data.nickname);
 
-    let passwordFromLocalStorage;
-    const passwordRegex = /"password"\s*:\s*"([^"]+)"/;
-    const passwordCatchFromLocal = getUserData.match(passwordRegex);
-
-    if (passwordCatchFromLocal && passwordCatchFromLocal.length > 1) {
-      passwordFromLocalStorage = passwordCatchFromLocal[1];
-      console.log("password from local storage", passwordFromLocalStorage);
-    } else {
-      console.log("password  not found");
-    }
-    // console.log("email from local storage", emailFromLocalStorage);
-    // console.log("password from local storage", passwordFromLocalStorage);
-    // console.log("user data get from the local storage", getUserData);
-    handleClose();
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      passwordFromLocalStorage
-    );
-    if (emailFromLocalStorage == email && isPasswordCorrect) {
-      onLogin(email);
-
-      // alert("user logged in ");
-      localStorage.setItem("session", email);
-    } else {
-      alert("User name or passwork incorrect");
+      handleClose();
+    } catch (error) {
+      console.error(
+        "EInvalid email or password. Please try again.rror during login:",
+        error
+      );
     }
   };
+
+  localStorage.setItem("nickname", nickname);
+
+  // const fetchData = async () => {
+  //   const token = localStorage.getItem("jwtToken");
+  //   const response = await axios.get("http://localhost:8081/api/secure-data", {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   });
+  //   console.log(response.data);
+  // };
 
   return (
     <>

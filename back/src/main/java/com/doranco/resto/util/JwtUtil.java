@@ -3,7 +3,7 @@ package com.doranco.resto.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -15,15 +15,17 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+
 @Component
 @ConfigurationProperties(prefix = "jwt")
 public class JwtUtil {
                 
-    private String secret;
-    private long expiration;
+    private final SecretKey secretKey;
+    private final long expiration;
 
-    public SecretKey getKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+    public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long expiration) {
+        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        this.expiration = expiration;
     }
 
     public String extractUsername(String token) {
@@ -37,7 +39,7 @@ public class JwtUtil {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getKey())
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -54,7 +56,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getKey(), SignatureAlgorithm.HS512)
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 

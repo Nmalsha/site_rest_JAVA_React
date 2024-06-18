@@ -8,7 +8,6 @@ com/doranco/resto/entity/User.class
 com/doranco/resto/controller/TestController.class
 com/doranco/resto/entity/Menu.class
 com/doranco/resto/repository/CommentRepository.class
-com/doranco/resto/config/SecurityConfig.class
 com/doranco/resto/controller/CommentController.class
 com/doranco/resto/service/CommentService.class
 com/doranco/resto/repository/UserRepository.class

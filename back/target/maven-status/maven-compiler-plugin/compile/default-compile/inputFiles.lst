@@ -15,5 +15,7 @@
 /home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/service/CommentService.java
 /home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/entity/User.java
 /home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/config/SecurityConfig.java
+/home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/controller/JwtResponse.java
 /home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/repository/MenuRepository.java
+/home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/config/CorsConfig.java
 /home/malpro/Documents/DORANCO-formation JAVA/javascript/back/src/main/java/com/doranco/resto/RestoApplication.java
