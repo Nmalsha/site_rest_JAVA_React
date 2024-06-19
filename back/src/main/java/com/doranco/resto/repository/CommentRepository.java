@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
   List<Comment> findAll();   
+  List<Comment> findByMenu_Id(Long menuId);
 }

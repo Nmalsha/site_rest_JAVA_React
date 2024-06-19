@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000")
 public class CommentController {
   @Autowired
     private CommentService commentService;
@@ -20,10 +21,10 @@ public class CommentController {
         return commentService.getAllComments();
     }
 
-    @GetMapping("/comment/{id}")
-    public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
-        Optional<Comment> comment = commentService.getCommentById(id);
-        return comment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/comment/by-dish/{dishId}")
+    public ResponseEntity<List<Comment>> getCommentsByDishId(@PathVariable Long dishId) {
+        List<Comment> comments = commentService.getCommentsByDishId(dishId);
+        return ResponseEntity.ok(comments);
     }
 
     @PostMapping("/comment/{id}")

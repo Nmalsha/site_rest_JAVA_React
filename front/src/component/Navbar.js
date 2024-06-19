@@ -29,6 +29,7 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("nickname");
+    localStorage.removeItem("userId");
     setIsAuthenticated(false);
   };
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);

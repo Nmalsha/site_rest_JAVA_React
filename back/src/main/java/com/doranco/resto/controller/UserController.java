@@ -4,7 +4,6 @@ import com.doranco.resto.entity.User;
 import com.doranco.resto.repository.UserRepository;
 import com.doranco.resto.service.UserService;
 import com.doranco.resto.util.JwtUtil;
-import com.doranco.resto.controller.JwtResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -131,49 +130,17 @@ public class UserController {
         if (optionalUser.isPresent()) {
             User existingUser = optionalUser.get();
             String nickname = existingUser.getNickname();
+            Long id = existingUser.getId();
         
             System.out.println("Retrieved nickname: " + nickname);
+            System.out.println("Retrieved connected user Id: " + id);
             // Return response with JWT and nickname
-            return ResponseEntity.ok(new JwtResponse(jwt, nickname));
+            return ResponseEntity.ok(new JwtResponse(jwt, nickname,id));
         } else {
             // Handle case where user is not found (optionalUser is empty)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        // Optional<User> optionalUser = userService.findByEmail(user.getEmail());
-        // if (optionalUser.isPresent()) {
-        //     User existingUser = optionalUser.get();
-        //     if (passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
-        //         // Generate JWT token
-        //         String token = userService.generateToken(existingUser);
-        //         return ResponseEntity.ok(token);
-        //     }
-        // }
-        // return ResponseEntity.status(401).body("Invalid email or password");
-     
-    //     authenticationManager.authenticate(
-    //         new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
-    // );
-
-    // UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-
-    // // Generate JWT
-    // String jwt = jwtUtil.generateToken(userDetails);
-    // // get nick name
-    // Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
-
-    // if (optionalUser.isPresent()) {
-    //     User user = optionalUser.get();
-    //     String nickname = user.getNickname();
-
-    //     // Return response with JWT and nickname
-    //     return ResponseEntity.ok(new JwtResponse(jwt, nickname));
-    // } else {
-    //     // Handle case where user is not found (optionalUser is empty)
-    //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-    // }
-    //     // } catch (Exception e) {
-        //     return ResponseEntity.status(401).body("Invalid email or password");
-        // }
+        
     }
     
     

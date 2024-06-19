@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 
@@ -8,6 +8,7 @@ const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
+  const [connectedUserId, setConnectedUserId] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -25,10 +26,14 @@ const Login = ({ onLogin }) => {
 
       // localStorage.setItem("User-Signup-Data", response.data.nickname);
       localStorage.setItem("jwtToken", response.data.token);
+      localStorage.setItem("userId", response.data.id); // Store user ID
+      localStorage.setItem("nickname", response.data.nickname);
       setNickname(response.data.nickname);
+      setConnectedUserId(response.data.id);
       onLogin(response.data.nickname);
-      console.log("User logged in", response.data);
-      console.log("User nickname", response.data.nickname);
+      // console.log("User logged in", response.data);
+      // console.log("User nickname", response.data.nickname);
+      // console.log("Connected user Id ", response.data.id);
 
       handleClose();
     } catch (error) {
@@ -38,18 +43,10 @@ const Login = ({ onLogin }) => {
       );
     }
   };
-
-  localStorage.setItem("nickname", nickname);
-
-  // const fetchData = async () => {
-  //   const token = localStorage.getItem("jwtToken");
-  //   const response = await axios.get("http://localhost:8081/api/secure-data", {
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   });
-  //   console.log(response.data);
-  // };
+  useEffect(() => {
+    console.log("User nickname", nickname);
+    console.log("Connected user Id ", connectedUserId);
+  }, []);
 
   return (
     <>

@@ -39,4 +39,7 @@ public class CommentService {
             return true;
         }).orElse(false);
     }
+    public List<Comment> getCommentsByDishId(Long dishId) {
+        return commentRepository.findByMenu_Id(dishId); 
+    }
 }

@@ -1,12 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-
-import dish1 from "../image/image1.jpg";
-import dish2 from "../image/image2.jpg";
-import dish3 from "../image/image3.jpg";
-import dish4 from "../image/image4.jpg";
 import { faComment } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
 
 const Diches = ({ handleAddToCart }) => {
   const [cart, setCart] = useState([]);
@@ -15,34 +11,59 @@ const Diches = ({ handleAddToCart }) => {
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [currentDishIndex, setCurrentDishIndex] = useState(null);
   const [newComment, setNewComment] = useState("");
+  const [dishes, setDishes] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [commentCounts, setCommentCounts] = useState([]);
 
-  const addToCart = (dishIndex) => {
-    const selectedDish = {
-      id: dishIndex,
-      dishName: `Dish Name ${dishIndex + 1}`,
-      price: (dishIndex + 1) * 10.99,
+  //getting all the menus from DB
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        const response = await fetch("http://localhost:8081/api/menus");
+        if (!response.ok) {
+          throw new Error("Failed to fetch menu data");
+        }
+        const data = await response.json();
+        setDishes(data);
+        // Initialize comments and likes state based on the fetched menu data
+        setLikes(data.map(() => 0)); // Initialize likes
+        // fetchCommentsForDishes(data);
+      } catch (error) {
+        console.error("Error fetching menu data:", error);
+      }
     };
 
-    setCart([...cart, selectedDish]);
-    handleAddToCart(selectedDish);
-    console.log("check addcart click", selectedDish);
+    fetchMenus();
+  }, []);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    setIsLoggedIn(!!userId); // Set isLoggedIn to true if userId exists
+  }, []);
+
+  console.log(dishes);
+  //add to cart
+  const addToCart = (dish) => {
+    console.log("diche", dish);
+    if (dish && dish.id) {
+      const selectedDish = {
+        id: dish.id,
+        dishName: dish.dishName,
+        price: dish.price,
+        // Add other properties as needed
+      };
+
+      setCart([...cart, selectedDish]);
+      handleAddToCart(selectedDish);
+      console.log("Selected dish added to cart:", selectedDish);
+    } else {
+      console.error("Menu object or its id property is undefined");
+    }
   };
 
-  // const handleLike = (dishIndex) => {
-  //   setLikes((prevLikes) => {
-  //     const newLikes = [...prevLikes];
-  //     newLikes[dishIndex]++;
-  //     return newLikes;
-  //   });
-  // };
+  let userId = localStorage.getItem("userId");
+  console.log(userId);
 
-  // const addComment = (dishIndex, comment) => {
-  //   setComments((prevComments) => {
-  //     const newComments = [...prevComments];
-  //     newComments[dishIndex] = [...newComments[dishIndex], comment];
-  //     return newComments;
-  //   });
-  // };
   const handleLike = (dishIndex) => {
     setLikes((prevLikes) => {
       const newLikes = [...prevLikes];
@@ -52,38 +73,75 @@ const Diches = ({ handleAddToCart }) => {
   };
 
   const handleAddComment = async () => {
-    if (newComment.trim() === "") return;
-
-    const commentData = {
-      dishId: currentDishIndex,
-      comment: newComment,
-    };
+    // if (newComment.trim() === "" || currentDishIndex === null) return;
+    console.log("clicked dish index", dishes[currentDishIndex].id);
+    console.log("connected user  id", localStorage.getItem("userId"));
+    if (
+      newComment.trim() === "" ||
+      currentDishIndex === null ||
+      currentDishIndex === undefined
+    ) {
+      return "no dish id ";
+    }
 
     try {
-      const response = await fetch(`/api/comment/${currentDishIndex}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const userId = localStorage.getItem("userId");
+      const dishId = dishes[currentDishIndex].id;
+
+      const commentData = {
+        content: newComment,
+        user: {
+          id: userId,
         },
-        body: JSON.stringify(commentData),
-      });
+        menu: {
+          id: dishId,
+        },
+      };
+      const token = localStorage.getItem("jwtToken");
+      console.log("comments data :", JSON.stringify(commentData));
+      const response = await fetch(
+        `http://localhost:8081/api/comment/${dishes[currentDishIndex].id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(commentData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to post comment");
       }
 
-      // If the comment is successfully posted, update the local state
+      // const newCommentObject = {
+      //   content: newComment,
+      //   user: {
+      //     id: userId,
+      //   },
+      // };
+      // setComments((prevComments) => {
+      //   const newComments = [...prevComments];
+      //   newComments[currentDishIndex] = [
+      //     ...(newComments[currentDishIndex] || []),
+      //     newCommentObject,
+      //   ];
+      //   return newComments;
+      // });
+      const newCommentData = await response.json();
+
+      // Update local state to include the new comment for the specific dish
       setComments((prevComments) => {
         const newComments = [...prevComments];
-        newComments[currentDishIndex] = [
-          ...newComments[currentDishIndex],
-          newComment,
-        ];
+        const dishIndex = dishes.findIndex((dish) => dish.id === dishId);
+        newComments[dishIndex] = [...newComments[dishIndex], newCommentData];
         return newComments;
       });
 
       setNewComment("");
       setShowCommentModal(false);
+      // window.location.reload();
     } catch (error) {
       console.error("Error posting comment:", error);
     }
@@ -94,75 +152,9 @@ const Diches = ({ handleAddToCart }) => {
     setShowCommentModal(true);
   };
 
-  const dishes = [dish1, dish2, dish3, dish4];
+  // const dishes = [dish1, dish2, dish3, dish4];
 
   return (
-    // <section id="menu" className="menu-section bg-light py-5">
-    //   <div className="container">
-    //     <div className="text-center mb-5">
-    //       <h2 className="display-5">Our Menu</h2>
-    //       <p className="lead">Delicious dishes to satisfy your cravings</p>
-    //     </div>
-    //     <div className="row">
-    //       {dishes.map((dish, index) => (
-    //         //   console.log(index),
-    //         <div className="col-md-4 mb-4" key={index}>
-    //           <div className="card">
-    //             <img
-    //               src={dish}
-    //               className="card-img-top"
-    //               alt={`Dish ${index + 1}`}
-    //             />
-    //             <div className="card-body">
-    //               <h5 className="card-title">Dish Name {index + 1}</h5>
-    //               <p className="card-text">
-    //                 Description of the dish. Ingredients and flavors.
-    //               </p>
-    //               <p className="card-text">
-    //                 <strong>${10.99}</strong>
-    //               </p>
-
-    //               <button
-    //                 className="btn btn-secondary"
-    //                 onClick={() => addToCart(index)}
-    //               >
-    //                 Add to Cart
-    //               </button>
-    //             </div>
-    //             <div className="card-footer text-end">
-    //               <FontAwesomeIcon
-    //                 icon={faComment}
-    //                 style={{ color: "#637591" }}
-    //                 onClick={() => addComment(index)}
-    //               />
-    //               {/* Comment section */}
-    //               <div className="mt-3">
-    //                 <ul className="list-group mt-2">
-    //                   {comments[index].map((comment, commentIndex) => (
-    //                     <li className="list-group-item" key={commentIndex}>
-    //                       {comment}
-    //                     </li>
-    //                   ))}
-    //                 </ul>
-    //               </div>
-    //               {/* Like button */}
-    //               <div>
-    //                 <span
-    //                   role="img"
-    //                   aria-label="thumbs up"
-    //                   onClick={() => handleLike(index)}
-    //                 >
-    //                   👍
-    //                 </span>
-    //                 {likes[index]}
-    //               </div>
-    //             </div>
-    //           </div>
-    //         </div>
-    //       ))}
-    //     </div>
-    //   </div>
-    // </section>
     <section id="menu" className="menu-section bg-light py-5">
       <div className="container">
         <div className="text-center mb-5">
@@ -174,21 +166,19 @@ const Diches = ({ handleAddToCart }) => {
             <div className="col-md-4 mb-4" key={index}>
               <div className="card">
                 <img
-                  src={dish}
+                  src={dish.image}
                   className="card-img-top"
                   alt={`Dish ${index + 1}`}
                 />
                 <div className="card-body">
-                  <h5 className="card-title">Dish Name {index + 1}</h5>
+                  <h5 className="card-title">{dish.dishName}</h5>
+                  <p className="card-text">{dish.description}</p>
                   <p className="card-text">
-                    Description of the dish. Ingredients and flavors.
-                  </p>
-                  <p className="card-text">
-                    <strong>${10.99}</strong>
+                    <strong>${dish.price}</strong>
                   </p>
                   <button
                     className="btn btn-secondary"
-                    onClick={() => addToCart(index)}
+                    onClick={() => addToCart(dish)}
                   >
                     Add to Cart
                   </button>
@@ -205,17 +195,19 @@ const Diches = ({ handleAddToCart }) => {
                     </span>
                     {likes[index]}
                   </div>
-                  <FontAwesomeIcon
-                    icon={faComment}
-                    style={{ color: "#637591", cursor: "pointer" }}
-                    onClick={() => openCommentModal(index)}
-                  />
+                  {isLoggedIn && (
+                    <FontAwesomeIcon
+                      icon={faComment}
+                      style={{ color: "#637591", cursor: "pointer" }}
+                      onClick={() => openCommentModal(index)}
+                    />
+                  )}
                 </div>
                 <div className="mt-3">
                   <ul className="list-group mt-2">
-                    {comments[index].map((comment, commentIndex) => (
+                    {dish.comments?.map((comment, commentIndex) => (
                       <li className="list-group-item" key={commentIndex}>
-                        {comment}
+                        {comment.content}
                       </li>
                     ))}
                   </ul>
@@ -251,7 +243,7 @@ const Diches = ({ handleAddToCart }) => {
           >
             Close
           </Button>
-          <Button variant="primary" onClick={handleAddComment}>
+          <Button variant="primary" onClick={() => handleAddComment()}>
             Add Comment
           </Button>
         </Modal.Footer>
