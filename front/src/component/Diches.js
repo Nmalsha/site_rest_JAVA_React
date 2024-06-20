@@ -26,8 +26,22 @@ const Diches = ({ handleAddToCart }) => {
         const data = await response.json();
         setDishes(data);
         // Initialize comments and likes state based on the fetched menu data
-        setLikes(data.map(() => 0)); // Initialize likes
-        // fetchCommentsForDishes(data);
+        setLikes(data.map(() => 0));
+
+        const commentCounts = await Promise.all(
+          data.map(async (dish) => {
+            const commentResponse = await axios.get(
+              `http://localhost:8081/api/comment/by-dish/${dish.id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+                },
+              }
+            );
+            return { dishId: dish.id, count: commentResponse.data.length };
+          })
+        );
+        setCommentCounts(commentCounts);
       } catch (error) {
         console.error("Error fetching menu data:", error);
       }
@@ -38,7 +52,7 @@ const Diches = ({ handleAddToCart }) => {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    setIsLoggedIn(!!userId); // Set isLoggedIn to true if userId exists
+    setIsLoggedIn(!!userId);
   }, []);
 
   console.log(dishes);
@@ -73,7 +87,6 @@ const Diches = ({ handleAddToCart }) => {
   };
 
   const handleAddComment = async () => {
-    // if (newComment.trim() === "" || currentDishIndex === null) return;
     console.log("clicked dish index", dishes[currentDishIndex].id);
     console.log("connected user  id", localStorage.getItem("userId"));
     if (
@@ -115,20 +128,6 @@ const Diches = ({ handleAddToCart }) => {
         throw new Error("Failed to post comment");
       }
 
-      // const newCommentObject = {
-      //   content: newComment,
-      //   user: {
-      //     id: userId,
-      //   },
-      // };
-      // setComments((prevComments) => {
-      //   const newComments = [...prevComments];
-      //   newComments[currentDishIndex] = [
-      //     ...(newComments[currentDishIndex] || []),
-      //     newCommentObject,
-      //   ];
-      //   return newComments;
-      // });
       const newCommentData = await response.json();
 
       // Update local state to include the new comment for the specific dish
@@ -141,7 +140,6 @@ const Diches = ({ handleAddToCart }) => {
 
       setNewComment("");
       setShowCommentModal(false);
-      // window.location.reload();
     } catch (error) {
       console.error("Error posting comment:", error);
     }
@@ -152,10 +150,12 @@ const Diches = ({ handleAddToCart }) => {
     setShowCommentModal(true);
   };
 
-  // const dishes = [dish1, dish2, dish3, dish4];
-
   return (
-    <section id="menu" className="menu-section bg-light py-5">
+    <section
+      id="menu"
+      className="menu-section bg-light py-5"
+      style={{ marginTop: "100px" }}
+    >
       <div className="container">
         <div className="text-center mb-5">
           <h2 className="display-5">Our Menu</h2>
@@ -195,13 +195,24 @@ const Diches = ({ handleAddToCart }) => {
                     </span>
                     {likes[index]}
                   </div>
-                  {isLoggedIn && (
-                    <FontAwesomeIcon
-                      icon={faComment}
-                      style={{ color: "#637591", cursor: "pointer" }}
-                      onClick={() => openCommentModal(index)}
-                    />
-                  )}
+                  <div>
+                    {isLoggedIn && (
+                      <FontAwesomeIcon
+                        icon={faComment}
+                        style={{ color: "#637591", cursor: "pointer" }}
+                        onClick={() => openCommentModal(index)}
+                      />
+                    )}
+                    {/* Display comment count badge */}
+                    {commentCounts[index]?.count > 0 && (
+                      <span
+                        className="badge bg-light ms-2"
+                        style={{ color: "red" }}
+                      >
+                        {commentCounts[index].count}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-3">
                   <ul className="list-group mt-2">

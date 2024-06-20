@@ -2,7 +2,11 @@ import React from "react";
 import logo from "../image/logo.jpeg";
 
 const About = () => (
-  <section id="about" className="py-5">
+  <section
+    id="about"
+    className="py-5 about-section"
+    style={{ marginTop: "100px" }}
+  >
     <div className="container">
       <div className="row">
         <div className="col-lg-6 mb-4">

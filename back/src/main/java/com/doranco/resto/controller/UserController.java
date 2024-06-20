@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,14 +129,16 @@ public class UserController {
         Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
         
         if (optionalUser.isPresent()) {
-            User existingUser = optionalUser.get();
-            String nickname = existingUser.getNickname();
-            Long id = existingUser.getId();
+            // User existingUser = optionalUser.get();
+            // String nickname = existingUser.getNickname();
+            // Long id = existingUser.getId();
+            // System.out.println("Retrieved nickname: " + nickname);
+            // System.out.println("Retrieved connected user Id: " + id);
+            // // Return response with JWT and nickname
+
         
-            System.out.println("Retrieved nickname: " + nickname);
-            System.out.println("Retrieved connected user Id: " + id);
-            // Return response with JWT and nickname
-            return ResponseEntity.ok(new JwtResponse(jwt, nickname,id));
+
+            return ResponseEntity.ok(new JwtResponse(jwt));
         } else {
             // Handle case where user is not found (optionalUser is empty)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");

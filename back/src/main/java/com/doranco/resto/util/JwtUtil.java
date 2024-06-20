@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import org.springframework.beans.factory.annotation.Value;
+import com.doranco.resto.entity.User; 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -47,6 +49,9 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("nickname", ((User) userDetails).getNickname());
+        claims.put("id", ((User) userDetails).getId());
+        claims.put("roles", ((User) userDetails).getRoles());
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -71,5 +76,17 @@ public class JwtUtil {
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+    public String extractNickname(String token) {
+        return extractAllClaims(token).get("nickname", String.class);
+    }
+
+    public Long extractId(String token) {
+        return extractAllClaims(token).get("id", Long.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> extractRoles(String token) {
+        return extractAllClaims(token).get("roles", List.class);
     }
 }

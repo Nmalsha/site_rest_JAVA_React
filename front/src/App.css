@@ -24,6 +24,12 @@
   transform: scale(1.4);
   cursor: pointer;
 }
+.about-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

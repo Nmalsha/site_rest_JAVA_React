@@ -5,11 +5,11 @@ import SignupModel from "./Signup";
 import { Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
-const Navbar = ({ cart, onDeleteItem, userNickname }) => {
+const Navbar = ({ cart, onDeleteItem, token }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
-  const [userDisplayNickname, setUserDisplayNickname] = useState("");
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -22,14 +22,23 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
     const session = localStorage.getItem("jwtToken");
     if (session) {
       setIsAuthenticated(true);
+      setIsSignup(true);
     }
   }, []);
-  console.log("navbar nickname display", userNickname);
+  const userName = localStorage.getItem("nickname");
+
+  //check if the logged user is admin
+
+  const loggedUserRoles = localStorage.getItem("roles");
+  const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
+
+  const isAdmin = rolesArray.includes("ROLE_ADMIN");
 
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("nickname");
     localStorage.removeItem("userId");
+    localStorage.removeItem("roles");
     setIsAuthenticated(false);
   };
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
@@ -39,7 +48,7 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
       style={{ backgroundColor: "#637591" }}
     >
       <div className="container">
-        <a className="navbar-brand" href="#">
+        <a className="navbar-brand" href="/home">
           <img
             src={logo}
             className="card-img-top"
@@ -61,13 +70,22 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <a
+              <Link to="/diches">
+                <a
+                  href="/diches"
+                  className="nav-link active"
+                  style={{ fontSize: "24px" }}
+                >
+                  Home
+                </a>
+              </Link>
+              {/* <a
                 className="nav-link active"
                 href="#"
                 style={{ fontSize: "24px" }}
               >
                 Home
-              </a>
+              </a> */}
             </li>
             {/* <li className="nav-item">
               <a
@@ -81,7 +99,7 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
             <li className="nav-item">
               <a
                 className="nav-link"
-                href="#about"
+                href="/about"
                 style={{ fontSize: "24px" }}
               >
                 About Us
@@ -97,11 +115,38 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
                 Contact
               </a>
             </li>
+            {isAdmin && (
+              <li className="nav-item">
+                <a
+                  className="nav-link"
+                  href="/admin"
+                  style={{ fontSize: "24px" }}
+                >
+                  Administration
+                </a>
+              </li>
+            )}
+            {!isSignup && (
+              <li className="nav-item">
+                <SignupModel
+                  onSignup={() => {
+                    setIsSignup(true);
+                  }}
+                />
+              </li>
+            )}
             {isAuthenticated ? (
               <>
                 <li className="nav-item">
-                  <span className="nav-link" style={{ fontSize: "24px" }}>
-                    Hello {userDisplayNickname}
+                  <span
+                    className="nav-link"
+                    style={{
+                      fontSize: "24px",
+                      color: "#4a1a16",
+                      fontFamily: "'Roboto', sans-serif",
+                    }}
+                  >
+                    Hello {userName}
                   </span>
                 </li>
                 <li className="nav-item">
@@ -118,22 +163,12 @@ const Navbar = ({ cart, onDeleteItem, userNickname }) => {
               <>
                 <li className="nav-item">
                   <LoginModal
-                    onLogin={(userDisplayNickname) => {
+                    onLogin={(token) => {
                       setIsAuthenticated(true);
-                      setUserDisplayNickname(userDisplayNickname);
                     }}
                   />
                 </li>
               </>
-            )}
-            {!isSignup && (
-              <li className="nav-item">
-                <SignupModel
-                  onSignup={() => {
-                    setIsSignup(true);
-                  }}
-                />
-              </li>
             )}
             <li className="nav-item">
               <div className="dropdown">
