@@ -6,12 +6,15 @@ import { Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ cart, onDeleteItem, token }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -33,13 +36,14 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
   const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
 
   const isAdmin = rolesArray.includes("ROLE_ADMIN");
-
+  console.log("isadmin", isAdmin);
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("nickname");
     localStorage.removeItem("userId");
     localStorage.removeItem("roles");
     setIsAuthenticated(false);
+    navigate("/");
   };
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
   return (

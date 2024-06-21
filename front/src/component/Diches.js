@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { faComment } from "@fortawesome/free-solid-svg-icons";
+import { faComment, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Diches = ({ handleAddToCart }) => {
   const [cart, setCart] = useState([]);
@@ -14,6 +15,9 @@ const Diches = ({ handleAddToCart }) => {
   const [dishes, setDishes] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [commentCounts, setCommentCounts] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const navigate = useNavigate();
 
   //getting all the menus from DB
   useEffect(() => {
@@ -28,20 +32,24 @@ const Diches = ({ handleAddToCart }) => {
         // Initialize comments and likes state based on the fetched menu data
         setLikes(data.map(() => 0));
 
-        const commentCounts = await Promise.all(
-          data.map(async (dish) => {
-            const commentResponse = await axios.get(
-              `http://localhost:8081/api/comment/by-dish/${dish.id}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-                },
-              }
-            );
-            return { dishId: dish.id, count: commentResponse.data.length };
-          })
-        );
-        setCommentCounts(commentCounts);
+        const token = localStorage.getItem("jwtToken");
+        if (token) {
+          const commentCounts = await Promise.all(
+            data.map(async (dish) => {
+              const commentResponse = await axios.get(
+                `http://localhost:8081/api/comment/by-dish/${dish.id}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+              return { dishId: dish.id, count: commentResponse.data.length };
+            })
+          );
+          setCommentCounts(commentCounts);
+        }
+        navigate("/diches");
       } catch (error) {
         console.error("Error fetching menu data:", error);
       }
@@ -53,6 +61,15 @@ const Diches = ({ handleAddToCart }) => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     setIsLoggedIn(!!userId);
+
+    const loggedUserRoles = localStorage.getItem("roles");
+    const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
+
+    if (rolesArray.includes("ROLE_ADMIN")) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
   }, []);
 
   console.log(dishes);
@@ -128,15 +145,24 @@ const Diches = ({ handleAddToCart }) => {
         throw new Error("Failed to post comment");
       }
 
-      const newCommentData = await response.json();
-
       // Update local state to include the new comment for the specific dish
-      setComments((prevComments) => {
-        const newComments = [...prevComments];
-        const dishIndex = dishes.findIndex((dish) => dish.id === dishId);
-        newComments[dishIndex] = [...newComments[dishIndex], newCommentData];
-        return newComments;
-      });
+      const newCommentData = await response.json();
+      const updatedDishes = [...dishes];
+      const dishIndex = updatedDishes.findIndex((dish) => dish.id === dishId);
+      updatedDishes[dishIndex].comments.push(newCommentData);
+      setDishes(updatedDishes);
+
+      // Update comment count after adding comment
+      const updatedCommentCounts = [...commentCounts];
+      const countIndex = updatedCommentCounts.findIndex(
+        (count) => count.dishId === dishId
+      );
+      if (countIndex !== -1) {
+        updatedCommentCounts[countIndex].count++;
+      } else {
+        updatedCommentCounts.push({ dishId, count: 1 });
+      }
+      setCommentCounts(updatedCommentCounts);
 
       setNewComment("");
       setShowCommentModal(false);
@@ -148,6 +174,33 @@ const Diches = ({ handleAddToCart }) => {
   const openCommentModal = (index) => {
     setCurrentDishIndex(index);
     setShowCommentModal(true);
+  };
+
+  // delete menu if - action allowed only for admin
+  const deleteMenuItem = async (menuId) => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const response = await axios.delete(
+        `http://localhost:8081/api/menus/${menuId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 204) {
+        // Menu item deleted successfully, update state or fetch menus again
+        const updatedDishes = dishes.filter((dish) => dish.id !== menuId);
+        setDishes(updatedDishes);
+        alert("Menu item deleted successfully!");
+      } else {
+        throw new Error("Failed to delete menu item");
+      }
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      alert("Failed to delete menu item");
+    }
   };
 
   return (
@@ -164,6 +217,17 @@ const Diches = ({ handleAddToCart }) => {
         <div className="row">
           {dishes.map((dish, index) => (
             <div className="col-md-4 mb-4" key={index}>
+              {isAdmin && (
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  style={{
+                    color: "637591",
+                    cursor: "pointer",
+                    marginLeft: "10px",
+                  }}
+                  onClick={() => deleteMenuItem(dish.id)}
+                />
+              )}
               <div className="card">
                 <img
                   src={dish.image}

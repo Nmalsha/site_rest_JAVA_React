@@ -6,7 +6,9 @@ import Diches from "./component/Diches";
 import About from "./component/About";
 import Footer from "./component/Footer";
 import AdminDashboard from "./component/admin/AdminDashboard";
+import PrivateRoute from "./component/PrivateRoute";
 import MentionsLegales from "./component/MentionsLegales";
+import ErrorPage from "./component/ErrorPage";
 import {
   BrowserRouter as Router,
   Route,
@@ -41,7 +43,10 @@ function App() {
         />
         <Routes>
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/" element={<Header />} />
+          <Route
+            path="/"
+            element={<Diches handleAddToCart={handleAddToCart} />}
+          />
           <Route
             path="/diches"
             element={<Diches handleAddToCart={handleAddToCart} />}
@@ -49,8 +54,22 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+            path="/error"
+            element={
+              <ErrorPage message="You are not allowed to access this page." />
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
         </Routes>
+
         <Footer />
       </div>
     </Router>

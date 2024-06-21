@@ -2,17 +2,18 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
   const [show, setShow] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [nickname, setNickname] = useState("");
-  // const [connectedUserId, setConnectedUserId] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,27 +28,13 @@ const Login = ({ onLogin }) => {
       onLogin(response.data.token);
       const catchedToken = response.data.token;
       const decodedToken = jwtDecode(catchedToken);
-      console.log("nickname decoded from the token", decodedToken.nickname);
-      console.log("id decoded from the token", decodedToken.id);
-      console.log("roles decoded from the token", decodedToken.roles);
-      // const nickname = decodedToken.nickname;
-      // const roles = decodedToken.roles;
-      // const id = decodedToken.sub;
-
-      // const { nickname, id, roles } = decodedToken;
-      // localStorage.setItem("User-Signup-Data", response.data.nickname);
       localStorage.setItem("jwtToken", catchedToken);
       localStorage.setItem("userId", decodedToken.id); // Store user ID
       localStorage.setItem("nickname", decodedToken.nickname);
-      localStorage.setItem("roles", decodedToken.roles);
-      // setNickname(response.data.nickname);
-      // setConnectedUserId(response.data.id);
-      // onLogin(response.data.nickname);
-      // console.log("User logged in", response.data);
-      // console.log("User nickname", response.data.nickname);
-      // console.log("Connected user Id ", response.data.id);
+      localStorage.setItem("roles", decodedToken.roles.join(","));
 
       handleClose();
+      navigate("/diches");
     } catch (error) {
       console.error(
         "EInvalid email or password. Please try again.rror during login:",

@@ -1,13 +1,25 @@
 package com.doranco.resto.controller;
 
 import com.doranco.resto.entity.Menu;
+import com.doranco.resto.entity.Comment;
 import com.doranco.resto.service.MenuService;
+import com.doranco.resto.service.CommentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.StringUtils;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping("/api/menus")
@@ -15,6 +27,19 @@ public class MenuController {
 
     @Autowired
     private MenuService menuService;
+
+    @Autowired
+    private CommentService commentService ;
+
+     @Autowired
+    private ObjectMapper objectMapper; 
+
+    // Provide a default value
+    @Value("${file.upload-dir:src/main/resources/static/images/}")
+    private String uploadDir;
+
+    @Value("${server.port}")
+    private String serverPort;
 
     @GetMapping
     public List<Menu> getAllMenus() {
@@ -27,9 +52,37 @@ public class MenuController {
         return menu.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Menu createMenu(@RequestBody Menu menu) {
-        return menuService.createMenu(menu);
+   @PostMapping(consumes = { "multipart/form-data" })
+    public ResponseEntity<Menu> createMenu(
+        @RequestPart("menu") String menuJson, 
+        @RequestPart("image") MultipartFile image
+    ) {
+        try {   
+            Menu menu = objectMapper.readValue(menuJson, Menu.class);
+            System.out.println("menu object: " + menu);
+            if (image != null && !image.isEmpty()) {
+                // Save the image to the filesystem
+                String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+                Path imagePath = Paths.get(uploadDir, fileName);
+
+                // Ensure the directory exists
+                Files.createDirectories(imagePath.getParent());
+
+                Files.copy(image.getInputStream(), imagePath);
+                // Assuming image property is a String storing the file URL
+                // menu.setImage("/images/" + fileName);
+
+                String imageUrl = "http://localhost:" + serverPort + "/images/" + fileName;
+                menu.setImage(imageUrl);
+
+             
+            }
+          
+            Menu savedMenu = menuService.createMenu(menu);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedMenu);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
@@ -40,10 +93,41 @@ public class MenuController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMenu(@PathVariable Long id) {
-        if (menuService.deleteMenu(id)) {
-            return ResponseEntity.noContent().build();
+        Optional<Menu> menuOptional = menuService.getMenuById(id);
+
+        if (menuOptional.isPresent()) {
+            Menu menu = menuOptional.get();
+
+            // Delete associated image file if it exists
+            if (menu.getImage() != null) {
+                String fileName = menu.getImage().substring(menu.getImage().lastIndexOf("/") + 1);
+                Path imagePath = Paths.get(uploadDir, fileName);
+
+                try {
+                    Files.deleteIfExists(imagePath);
+                } catch (IOException e) {
+                    // Handle file deletion failure
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
+            List<Comment> comments = menu.getComments();
+            for (Comment comment : comments) {
+                // Delete each comment from database
+                commentService.deleteComment(comment.getId());
+            }
+            // Delete the menu item from the database
+            if (menuService.deleteMenu(id)) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         } else {
             return ResponseEntity.notFound().build();
         }
+        // if (menuService.deleteMenu(id)) {
+        //     return ResponseEntity.noContent().build();
+        // } else {
+        //     return ResponseEntity.notFound().build();
+        // }
     }
 }

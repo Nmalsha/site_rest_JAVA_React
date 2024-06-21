@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AddDish = ({ onDishAdded }) => {
   const [dishName, setDishName] = useState("");
@@ -9,6 +10,7 @@ const AddDish = ({ onDishAdded }) => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -19,9 +21,19 @@ const AddDish = ({ onDishAdded }) => {
 
     try {
       const formData = new FormData();
-      formData.append("dishName", dishName);
-      formData.append("description", description);
-      formData.append("price", price);
+      formData.append(
+        "menu",
+        new Blob(
+          [
+            JSON.stringify({
+              dishName: dishName,
+              description: description,
+              price: price,
+            }),
+          ],
+          { type: "application/json" }
+        )
+      );
       if (image) formData.append("image", image);
 
       const response = await axios.post(
@@ -29,7 +41,6 @@ const AddDish = ({ onDishAdded }) => {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -45,6 +56,7 @@ const AddDish = ({ onDishAdded }) => {
       } else {
         setError("Failed to add dish");
       }
+      navigate("/diches");
     } catch (err) {
       setError("An error occurred while adding the dish");
     }
