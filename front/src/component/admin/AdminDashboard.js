@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AddDish from "./AddDish";
+import MenuTable from "./MenuTable";
 
 const AdminDashboard = () => {
   const [dishes, setDishes] = useState([]);
@@ -10,8 +11,14 @@ const AdminDashboard = () => {
 
   return (
     <div style={{ marginTop: "150px" }}>
-      <h1>Admin Dashboard</h1>
-      <AddDish onDishAdded={handleDishAdded} />
+      <div>
+        {" "}
+        <h1>Admin Dashboard</h1>
+        <AddDish onDishAdded={handleDishAdded} />
+      </div>
+      <div>
+        <MenuTable dishes={dishes} setDishes={setDishes} />
+      </div>
     </div>
   );
 };
