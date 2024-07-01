@@ -29,7 +29,7 @@ const Login = ({ onLogin }) => {
       const catchedToken = response.data.token;
       const decodedToken = jwtDecode(catchedToken);
       localStorage.setItem("jwtToken", catchedToken);
-      localStorage.setItem("userId", decodedToken.id); // Store user ID
+      localStorage.setItem("userId", decodedToken.id);
       localStorage.setItem("nickname", decodedToken.nickname);
       localStorage.setItem("roles", decodedToken.roles.join(","));
 

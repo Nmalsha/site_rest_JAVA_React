@@ -4,60 +4,40 @@ import { faComment, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchMenus, deleteMenu } from "../redux/slices/menuSlice";
+import {
+  fetchCommentsByDishId,
+  postComment,
+} from "../redux/slices/commentSlice";
 
 const Diches = ({ handleAddToCart }) => {
+  const dispatch = useDispatch();
+  const dishes = useSelector((state) => state.menus.items);
+  const commentCounts = useSelector((state) => {
+    const counts = {};
+    for (let dishId in state.comments.commentsByDish) {
+      counts[dishId] = state.comments.commentsByDish[dishId].length;
+    }
+    return counts;
+  });
+
   const [cart, setCart] = useState([]);
-  const [comments, setComments] = useState(Array(4).fill([]));
-  const [likes, setLikes] = useState(Array(4).fill(0));
+  const [likes, setLikes] = useState([]);
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [currentDishIndex, setCurrentDishIndex] = useState(null);
   const [newComment, setNewComment] = useState("");
-  const [dishes, setDishes] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [commentCounts, setCommentCounts] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
 
-  //getting all the menus from DB
+  // Fetch menus from the server
   useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        const response = await fetch("http://localhost:8081/api/menus");
-        if (!response.ok) {
-          throw new Error("Failed to fetch menu data");
-        }
-        const data = await response.json();
-        setDishes(data);
-        // Initialize comments and likes state based on the fetched menu data
-        setLikes(data.map(() => 0));
+    dispatch(fetchMenus());
+  }, [dispatch]);
 
-        const token = localStorage.getItem("jwtToken");
-        if (token) {
-          const commentCounts = await Promise.all(
-            data.map(async (dish) => {
-              const commentResponse = await axios.get(
-                `http://localhost:8081/api/comment/by-dish/${dish.id}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-              return { dishId: dish.id, count: commentResponse.data.length };
-            })
-          );
-          setCommentCounts(commentCounts);
-        }
-        navigate("/diches");
-      } catch (error) {
-        console.error("Error fetching menu data:", error);
-      }
-    };
-
-    fetchMenus();
-  }, []);
-
+  // Check login status and roles
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     setIsLoggedIn(!!userId);
@@ -65,35 +45,28 @@ const Diches = ({ handleAddToCart }) => {
     const loggedUserRoles = localStorage.getItem("roles");
     const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
 
-    if (rolesArray.includes("ROLE_ADMIN")) {
-      setIsAdmin(true);
-    } else {
-      setIsAdmin(false);
-    }
+    setIsAdmin(rolesArray.includes("ROLE_ADMIN"));
   }, []);
 
-  console.log(dishes);
-  //add to cart
+  // Initialize likes array based on fetched dishes
+  useEffect(() => {
+    setLikes(dishes.map(() => 0));
+  }, [dishes]);
+
+  // Add to cart function
   const addToCart = (dish) => {
-    console.log("diche", dish);
     if (dish && dish.id) {
       const selectedDish = {
         id: dish.id,
         dishName: dish.dishName,
         price: dish.price,
-        // Add other properties as needed
       };
-
       setCart([...cart, selectedDish]);
       handleAddToCart(selectedDish);
-      console.log("Selected dish added to cart:", selectedDish);
     } else {
       console.error("Menu object or its id property is undefined");
     }
   };
-
-  let userId = localStorage.getItem("userId");
-  console.log(userId);
 
   const handleLike = (dishIndex) => {
     setLikes((prevLikes) => {
@@ -104,105 +77,33 @@ const Diches = ({ handleAddToCart }) => {
   };
 
   const handleAddComment = async () => {
-    console.log("clicked dish index", dishes[currentDishIndex].id);
-    console.log("connected user  id", localStorage.getItem("userId"));
-    if (
-      newComment.trim() === "" ||
-      currentDishIndex === null ||
-      currentDishIndex === undefined
-    ) {
-      return "no dish id ";
-    }
+    if (!newComment.trim() || currentDishIndex === null) return;
 
-    try {
-      const userId = localStorage.getItem("userId");
-      const dishId = dishes[currentDishIndex].id;
+    const dishId = dishes[currentDishIndex].id;
+    const userId = localStorage.getItem("userId");
+    const commentData = {
+      content: newComment,
+      user: { id: userId },
+      menu: { id: dishId },
+    };
 
-      const commentData = {
-        content: newComment,
-        user: {
-          id: userId,
-        },
-        menu: {
-          id: dishId,
-        },
-      };
-      const token = localStorage.getItem("jwtToken");
-      console.log("comments data :", JSON.stringify(commentData));
-      const response = await fetch(
-        `http://localhost:8081/api/comment/${dishes[currentDishIndex].id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(commentData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to post comment");
-      }
-
-      // Update local state to include the new comment for the specific dish
-      const newCommentData = await response.json();
-      const updatedDishes = [...dishes];
-      const dishIndex = updatedDishes.findIndex((dish) => dish.id === dishId);
-      updatedDishes[dishIndex].comments.push(newCommentData);
-      setDishes(updatedDishes);
-
-      // Update comment count after adding comment
-      const updatedCommentCounts = [...commentCounts];
-      const countIndex = updatedCommentCounts.findIndex(
-        (count) => count.dishId === dishId
-      );
-      if (countIndex !== -1) {
-        updatedCommentCounts[countIndex].count++;
-      } else {
-        updatedCommentCounts.push({ dishId, count: 1 });
-      }
-      setCommentCounts(updatedCommentCounts);
-
-      setNewComment("");
-      setShowCommentModal(false);
-    } catch (error) {
-      console.error("Error posting comment:", error);
-    }
+    await dispatch(postComment({ dishId, commentData }));
+    setNewComment("");
+    setShowCommentModal(false);
   };
 
   const openCommentModal = (index) => {
     setCurrentDishIndex(index);
+    const dishId = dishes[index].id;
+    dispatch(fetchCommentsByDishId(dishId));
     setShowCommentModal(true);
   };
 
-  // delete menu if - action allowed only for admin
   const deleteMenuItem = async (menuId) => {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await axios.delete(
-        `http://localhost:8081/api/menus/${menuId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 204) {
-        // Menu item deleted successfully, update state or fetch menus again
-        const updatedDishes = dishes.filter((dish) => dish.id !== menuId);
-        setDishes(updatedDishes);
-        alert("Menu item deleted successfully!");
-      } else {
-        throw new Error("Failed to delete menu item");
-      }
-    } catch (error) {
-      console.error("Error deleting menu item:", error);
-      alert("Failed to delete menu item");
-    }
+    await dispatch(deleteMenu(menuId));
+    alert("Menu item deleted successfully!");
   };
-
+  console.log("comments to display", commentCounts);
   return (
     <section
       id="menu"
@@ -228,7 +129,7 @@ const Diches = ({ handleAddToCart }) => {
                   onClick={() => deleteMenuItem(dish.id)}
                 />
               )}
-              <div className="card menu-card box-hover">
+              <div className="card">
                 <img
                   src={dish.image}
                   className="card-img-top"
@@ -268,12 +169,12 @@ const Diches = ({ handleAddToCart }) => {
                       />
                     )}
                     {/* Display comment count badge */}
-                    {commentCounts[index]?.count > 0 && (
+                    {commentCounts[dish.id] > 0 && (
                       <span
                         className="badge bg-light ms-2"
                         style={{ color: "red" }}
                       >
-                        {commentCounts[index].count}
+                        {commentCounts[dish.id]}
                       </span>
                     )}
                   </div>
@@ -318,7 +219,7 @@ const Diches = ({ handleAddToCart }) => {
           >
             Close
           </Button>
-          <Button variant="primary" onClick={() => handleAddComment()}>
+          <Button variant="primary" onClick={handleAddComment}>
             Add Comment
           </Button>
         </Modal.Footer>

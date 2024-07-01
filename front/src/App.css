@@ -20,15 +20,68 @@
   transform: scale(1.05);
   cursor: pointer;
 }
-.box-hover:hover {
-  transform: scale(1.4);
-  cursor: pointer;
-}
+/* .box-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+} */
 .about-section {
   min-height: 100vh;
   display: flex;
   align-items: center;
   padding: 20px;
+}
+.menu-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.menu-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.menu-card img {
+  height: 200px;
+  object-fit: cover;
+}
+.menu-card .card-body {
+  text-align: center;
+}
+.menu-card .card-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.menu-card .card-text {
+  margin-bottom: 1rem;
+}
+.menu-card .btn-secondary {
+  background-color: #637591;
+  border-color: #637591;
+}
+.menu-card .btn-secondary:hover {
+  background-color: #53627d;
+  border-color: #53627d;
+}
+.menu-card .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.menu-card .like-button {
+  cursor: pointer;
+  color: #637591;
+}
+.menu-card .like-button.active {
+  color: #ff595e;
+}
+.menu-card .comment-badge {
+  cursor: pointer;
+}
+.comment-modal .modal-content {
+  padding: 20px;
+}
+.comment-modal .modal-header {
+  border-bottom: none;
+}
+.comment-modal .modal-footer {
+  border-top: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {

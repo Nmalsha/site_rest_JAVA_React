@@ -8,6 +8,7 @@ import Footer from "./component/Footer";
 import AdminDashboard from "./component/admin/AdminDashboard";
 import PrivateRoute from "./component/PrivateRoute";
 import MentionsLegales from "./component/MentionsLegales";
+import Cart from "./component/Cart";
 import ErrorPage from "./component/ErrorPage";
 import {
   BrowserRouter as Router,
@@ -18,7 +19,6 @@ import {
 import "./App.css";
 
 function App() {
-  const [cart, setCart] = useState([]);
   const [userNickname, setUserNickname] = useState("");
 
   const handleAddToCart = (selectedDish) => {
@@ -32,6 +32,7 @@ function App() {
   const handleLogin = (nickname) => {
     setUserNickname(nickname);
   };
+  const [cart, setCart] = useState([]);
 
   return (
     <Router>
@@ -54,6 +55,10 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/cart"
+            element={<Cart cart={cart} onDeleteItem={handleRemoveFromCart} />}
+          />
           <Route
             path="/error"
             element={

@@ -3,8 +3,6 @@ import logo from "../image/logo.jpeg";
 import LoginModal from "./Login";
 import SignupModel from "./Signup";
 import { Button } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -12,13 +10,7 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const navigate = useNavigate();
-
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
 
   useEffect(() => {
     // Check local storage for session
@@ -45,7 +37,7 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
     setIsAuthenticated(false);
     navigate("/");
   };
-  const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
+
   return (
     <nav
       className="navbar navbar-expand-lg navbar-light fixed-top"
@@ -83,23 +75,8 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
                   Home
                 </a>
               </Link>
-              {/* <a
-                className="nav-link active"
-                href="#"
-                style={{ fontSize: "24px" }}
-              >
-                Home
-              </a> */}
             </li>
-            {/* <li className="nav-item">
-              <a
-                className="nav-link"
-                href="#diches"
-                style={{ fontSize: "24px" }}
-              >
-                Diches
-              </a>
-            </li> */}
+
             <li className="nav-item">
               <a
                 className="nav-link"
@@ -175,58 +152,9 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
               </>
             )}
             <li className="nav-item">
-              <div className="dropdown">
-                <button
-                  className="btn btn-secondary dropdown-toggle"
-                  type="button"
-                  id="dropdownMenuButton"
-                  data-bs-toggle="dropdown"
-                  aria-expanded={dropdownOpen}
-                  onClick={toggleDropdown}
-                >
-                  Cart ({cart.length})
-                </button>
-
-                <ul
-                  className={`dropdown-menu${
-                    dropdownOpen ? " show" : ""
-                  } box-hover`}
-                  aria-labelledby="dropdownMenuButton"
-                >
-                  {cart.length > 0 ? (
-                    cart.map((item, index) => (
-                      <li
-                        key={index}
-                        className="dropdown-item mt-3 item-hover"
-                        style={{
-                          cursor: "pointer",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        {item.dishName} - ${item.price.toFixed(2)}
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          className="icon-hover"
-                          style={{ color: "#637591" }}
-                          onClick={() => onDeleteItem(index)}
-                        />
-                      </li>
-                    ))
-                  ) : (
-                    <li className="dropdown-item">Cart is empty</li>
-                  )}
-                  {cart.length > 0 && (
-                    <li
-                      className="dropdown-item"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Total: ${totalPrice}
-                    </li>
-                  )}
-                </ul>
-              </div>
+              <Button variant="secondary" onClick={() => navigate("/cart")}>
+                Cart ({cart.length})
+              </Button>
             </li>
           </ul>
         </div>
