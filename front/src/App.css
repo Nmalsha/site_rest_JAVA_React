@@ -1,12 +1,21 @@
 .App {
   text-align: center;
+  min-height: 100vh;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
+html,
+body,
+#root {
+  height: 100%;
+}
 
+.content-wrap {
+  flex: 1;
+}
 .icon-hover {
   color: black;
   transition: transform 0.2s ease-in-out;

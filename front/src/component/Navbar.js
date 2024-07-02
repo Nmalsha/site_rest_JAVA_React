@@ -6,11 +6,24 @@ import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = ({ cart, onDeleteItem, token }) => {
+const Navbar = ({ cart }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
-
+  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [cartItem, setCartItem] = useState([]);
   const navigate = useNavigate();
+
+  // const [cart, setCart] = useState(() => {
+  //   const savedCart = localStorage.getItem("cartItems");
+  //   return savedCart ? JSON.parse(savedCart) : [];
+  // });
+
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cartItems");
+    if (savedCart) {
+      setCartItemsCount(JSON.parse(savedCart).length);
+    }
+  }, [cart]);
 
   useEffect(() => {
     // Check local storage for session
@@ -22,18 +35,26 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
   }, []);
   const userName = localStorage.getItem("nickname");
 
+  useEffect(() => {
+    // Check local storage for session
+    const cartItem = localStorage.getItem("cartItems");
+    if (cartItem) {
+      setCartItem(cartItem);
+    }
+  }, []);
   //check if the logged user is admin
 
   const loggedUserRoles = localStorage.getItem("roles");
   const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
 
   const isAdmin = rolesArray.includes("ROLE_ADMIN");
-  console.log("isadmin", isAdmin);
+
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("nickname");
     localStorage.removeItem("userId");
     localStorage.removeItem("roles");
+    localStorage.removeItem("cartItems");
     setIsAuthenticated(false);
     navigate("/");
   };
@@ -153,7 +174,7 @@ const Navbar = ({ cart, onDeleteItem, token }) => {
             )}
             <li className="nav-item">
               <Button variant="secondary" onClick={() => navigate("/cart")}>
-                Cart ({cart.length})
+                Cart ({cartItemsCount})
               </Button>
             </li>
           </ul>

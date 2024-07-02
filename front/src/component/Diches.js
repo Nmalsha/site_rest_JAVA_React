@@ -6,8 +6,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Diches = ({ handleAddToCart }) => {
-  const [cart, setCart] = useState([]);
-  const [comments, setComments] = useState(Array(4).fill([]));
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("cartItems");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+  // console.log("Selected dish added to cart:", cart);
+  // const [cart, setCart] = useState([]);
+  // const [comments, setComments] = useState(Array(4).fill([]));
   const [likes, setLikes] = useState(Array(4).fill(0));
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [currentDishIndex, setCurrentDishIndex] = useState(null);
@@ -29,7 +34,6 @@ const Diches = ({ handleAddToCart }) => {
         }
         const data = await response.json();
         setDishes(data);
-        // Initialize comments and likes state based on the fetched menu data
         setLikes(data.map(() => 0));
 
         const token = localStorage.getItem("jwtToken");
@@ -56,7 +60,7 @@ const Diches = ({ handleAddToCart }) => {
     };
 
     fetchMenus();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -72,7 +76,10 @@ const Diches = ({ handleAddToCart }) => {
     }
   }, []);
 
-  console.log(dishes);
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cart));
+  }, [cart]);
+
   //add to cart
   const addToCart = (dish) => {
     console.log("diche", dish);
@@ -81,18 +88,22 @@ const Diches = ({ handleAddToCart }) => {
         id: dish.id,
         dishName: dish.dishName,
         price: dish.price,
-        // Add other properties as needed
       };
 
-      setCart([...cart, selectedDish]);
-      handleAddToCart(selectedDish);
-      console.log("Selected dish added to cart:", selectedDish);
+      setCart((prevCart) => {
+        const updatedCart = [...prevCart, selectedDish];
+        handleAddToCart(selectedDish);
+        return updatedCart;
+      });
+
+      // console.log("Selected dish added to cart:", selectedDish);
     } else {
       console.error("Menu object or its id property is undefined");
     }
   };
 
   let userId = localStorage.getItem("userId");
+  // localStorage.setItem("cartItems", JSON.stringify(cart));
   console.log(userId);
 
   const handleLike = (dishIndex) => {
@@ -178,6 +189,7 @@ const Diches = ({ handleAddToCart }) => {
 
   // delete menu if - action allowed only for admin
   const deleteMenuItem = async (menuId) => {
+    alert("I clicked in delete");
     try {
       const token = localStorage.getItem("jwtToken");
       const response = await axios.delete(
