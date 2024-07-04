@@ -32,8 +32,10 @@ const Login = ({ onLogin }) => {
       navigate("/");
     } catch (error) {
       console.error(
-        "EInvalid email or password. Please try again.rror during login:",
-        error
+        alert(
+          "EInvalid email or password. Please try again.rror during login:",
+          error
+        )
       );
     }
   };
@@ -83,7 +85,10 @@ const Login = ({ onLogin }) => {
             ></Modal.Header>
             <Modal.Body>
               <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Group
+                  className="mb-3 overlay-content"
+                  controlId="formBasicEmail"
+                >
                   <Form.Label>Email address</Form.Label>
                   <Form.Control
                     type="email"

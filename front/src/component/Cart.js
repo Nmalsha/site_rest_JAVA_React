@@ -28,7 +28,13 @@ const Cart = ({ onDeleteItem }) => {
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
 
   return (
-    <div className="container " style={{ marginTop: "180px", height: "100vh" }}>
+    <div
+      className="container d-flex justify-content-center align-items-center  "
+      style={{
+        height: "85vh",
+        flexDirection: "column",
+      }}
+    >
       <h2>Shopping Cart</h2>
       {cart.length == 0 ? (
         <p>Your cart is empty</p>
