@@ -11,8 +11,7 @@ const Diches = ({ handleAddToCart }) => {
     return savedCart ? JSON.parse(savedCart) : [];
   });
   // console.log("Selected dish added to cart:", cart);
-  // const [cart, setCart] = useState([]);
-  // const [comments, setComments] = useState(Array(4).fill([]));
+  const [isauthenticate, setIsauthenticate] = useState(false);
   const [likes, setLikes] = useState(Array(4).fill(0));
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [currentDishIndex, setCurrentDishIndex] = useState(null);
@@ -103,8 +102,6 @@ const Diches = ({ handleAddToCart }) => {
   };
 
   let userId = localStorage.getItem("userId");
-  // localStorage.setItem("cartItems", JSON.stringify(cart));
-  console.log(userId);
 
   const handleLike = (dishIndex) => {
     setLikes((prevLikes) => {
@@ -215,15 +212,22 @@ const Diches = ({ handleAddToCart }) => {
     }
   };
 
+  useEffect(() => {
+    const userLogged = localStorage.getItem("jwtToken");
+    if (userLogged) {
+      setIsauthenticate(true);
+    }
+  }, []);
+
   return (
     <section
       id="menu"
       className="menu-section bg-light py-5"
-      style={{ marginTop: "100px" }}
+      // style={{ marginTop: "100px" }}
     >
       <div className="container">
         <div className="text-center mb-5">
-          <h2 className="display-5">Our Menu</h2>
+          <h2 className="display-5">Livraison ou click and collect </h2>
           <p className="lead">Delicious dishes to satisfy your cravings</p>
         </div>
         <div className="row">
@@ -240,11 +244,15 @@ const Diches = ({ handleAddToCart }) => {
                   onClick={() => deleteMenuItem(dish.id)}
                 />
               )}
-              <div className="card menu-card box-hover">
+              <div
+                className="card menu-card box-hover rounded-5"
+                style={{ cursor: "pointer" }}
+              >
                 <img
                   src={dish.image}
                   className="card-img-top"
                   alt={`Dish ${index + 1}`}
+                  onClick={() => navigate(`/dish/${dish.id}`)}
                 />
                 <div className="card-body">
                   <h5 className="card-title">{dish.dishName}</h5>
@@ -252,12 +260,19 @@ const Diches = ({ handleAddToCart }) => {
                   <p className="card-text">
                     <strong>${dish.price}</strong>
                   </p>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => addToCart(dish)}
-                  >
-                    Add to Cart
-                  </button>
+                  {isauthenticate && (
+                    <button
+                      className="btn btn-secondary btn_houver"
+                      onClick={() => addToCart(dish)}
+                      style={{
+                        fontSize: "20px",
+                        background: "#5c460b",
+                        borderRadius: "20px",
+                      }}
+                    >
+                      Add to Cart
+                    </button>
+                  )}
                 </div>
                 <div className="card-footer d-flex justify-content-between align-items-center">
                   <div>

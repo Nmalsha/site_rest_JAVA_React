@@ -31,7 +31,7 @@ const MenuTable = ({ dishes, setDishes }) => {
   };
 
   return (
-    <div>
+    <div style={{ height: "100vh" }}>
       <h2>Dish List</h2>
       <Table striped bordered hover>
         <thead>

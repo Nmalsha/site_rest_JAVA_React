@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const Cart = ({ onDeleteItem }) => {
   const [cart, setCart] = useState(() => {
@@ -13,8 +11,6 @@ const Cart = ({ onDeleteItem }) => {
     localStorage.setItem("cartItems", JSON.stringify(cart));
   }, [cart]);
 
-  //  const [cartItems, setCartItems] = useState([]);
-
   useEffect(() => {
     const savedCart = localStorage.getItem("cartItems");
     if (savedCart) {
@@ -22,30 +18,6 @@ const Cart = ({ onDeleteItem }) => {
     }
   }, []);
 
-  // const handlePayment = async () => {
-  //   // Implement payment processing here
-  //   try {
-  //     const token = localStorage.getItem("jwtToken");
-  //     const response = await axios.post(
-  //       "http://localhost:8081/api/payment",
-  //       { cart },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     if (response.status === 200) {
-  //       alert("Payment successful!");
-  //       navigate("/success"); // Navigate to success page
-  //     } else {
-  //       alert("Payment failed");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error processing payment:", error);
-  //     alert("An error occurred while processing payment");
-  //   }
-  // };
   const handleRemoveFromCart = (index) => {
     console.log("Removing item at index:", index);
     const newCartItems = cart.filter((_, i) => i !== index);
@@ -56,7 +28,7 @@ const Cart = ({ onDeleteItem }) => {
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
 
   return (
-    <div className="container " style={{ marginTop: "180px" }}>
+    <div className="container " style={{ marginTop: "180px", height: "100vh" }}>
       <h2>Shopping Cart</h2>
       {cart.length == 0 ? (
         <p>Your cart is empty</p>

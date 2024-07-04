@@ -6,9 +6,10 @@ import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = ({ cart }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const Navbar = ({ isAuthenticated, onLogin, onLogout, cart }) => {
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [cartItem, setCartItem] = useState([]);
   const navigate = useNavigate();
@@ -25,14 +26,14 @@ const Navbar = ({ cart }) => {
     }
   }, [cart]);
 
-  useEffect(() => {
-    // Check local storage for session
-    const session = localStorage.getItem("jwtToken");
-    if (session) {
-      setIsAuthenticated(true);
-      setIsSignup(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Check local storage for session
+  //   const session = localStorage.getItem("jwtToken");
+  //   if (session) {
+  //     setIsAuthenticated(true);
+  //     setIsSignup(true);
+  //   }
+  // }, []);
   const userName = localStorage.getItem("nickname");
 
   useEffect(() => {
@@ -43,26 +44,39 @@ const Navbar = ({ cart }) => {
     }
   }, []);
   //check if the logged user is admin
+  useEffect(() => {
+    // Check if user is admin
+    const loggedUserRoles = localStorage.getItem("roles");
+    const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
+    setIsAdmin(rolesArray.includes("ROLE_ADMIN"));
+    // setUserName(localStorage.getItem("nickname") || "");
+  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   const loggedUserRoles = localStorage.getItem("roles");
+  //   const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
 
-  const loggedUserRoles = localStorage.getItem("roles");
-  const rolesArray = loggedUserRoles ? loggedUserRoles.split(",") : [];
-
-  const isAdmin = rolesArray.includes("ROLE_ADMIN");
-
+  //   const isAdmin = rolesArray.includes("ROLE_ADMIN");
+  //   if (isAdmin) {
+  //     // setIsAuthenticated(true);
+  //     isAuthenticated(false);
+  //     setIsAdmin(true);
+  //   }
+  // }, []);
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("nickname");
     localStorage.removeItem("userId");
     localStorage.removeItem("roles");
     localStorage.removeItem("cartItems");
-    setIsAuthenticated(false);
+    // setIsAuthenticated(false);
+    onLogout();
     navigate("/");
   };
 
   return (
     <nav
       className="navbar navbar-expand-lg navbar-light fixed-top"
-      style={{ backgroundColor: "#637591" }}
+      style={{ backgroundColor: "#82620a", height: "15vh" }}
     >
       <div className="container">
         <a className="navbar-brand" href="/home">
@@ -86,21 +100,19 @@ const Navbar = ({ cart }) => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link to="/diches">
-                <a
-                  href="/diches"
-                  className="nav-link active"
-                  style={{ fontSize: "24px" }}
-                >
-                  Home
-                </a>
-              </Link>
+            <li className="nav-item active">
+              <a
+                href="/diches"
+                className="nav-link "
+                style={{ fontSize: "24px" }}
+              >
+                Home
+              </a>
             </li>
 
             <li className="nav-item">
               <a
-                className="nav-link"
+                className="nav-link "
                 href="/about"
                 style={{ fontSize: "24px" }}
               >
@@ -110,7 +122,7 @@ const Navbar = ({ cart }) => {
 
             <li className="nav-item">
               <a
-                className="nav-link"
+                className="nav-link nav_link"
                 href="#contact"
                 style={{ fontSize: "24px" }}
               >
@@ -128,13 +140,21 @@ const Navbar = ({ cart }) => {
                 </a>
               </li>
             )}
-            {!isSignup && (
+
+            {/* {!isAuthenticated && (
               <li className="nav-item">
-                <SignupModel
-                  onSignup={() => {
-                    setIsSignup(true);
-                  }}
-                />
+                <SignupModel />
+              </li>
+            )} */}
+            {!isAuthenticated && (
+              <li className="nav-item">
+                <a
+                  className="nav-link "
+                  href="/signup"
+                  style={{ fontSize: "24px" }}
+                >
+                  Signup
+                </a>
               </li>
             )}
             {isAuthenticated ? (
@@ -144,36 +164,55 @@ const Navbar = ({ cart }) => {
                     className="nav-link"
                     style={{
                       fontSize: "24px",
-                      color: "#4a1a16",
+                      color: "#fc9403",
                       fontFamily: "'Roboto', sans-serif",
                     }}
                   >
-                    Hello {userName}
+                    {isAdmin ? `Hello Admin ${userName}` : `Hello ${userName}`}
                   </span>
                 </li>
                 <li className="nav-item">
-                  <Button
-                    variant="secondary"
+                  <a
+                    className="nav-link "
+                    href="/"
                     onClick={handleLogout}
                     style={{ fontSize: "24px" }}
                   >
                     Log out
-                  </Button>
+                  </a>
                 </li>
               </>
             ) : (
               <>
                 <li className="nav-item">
-                  <LoginModal
+                  <a
+                    className="nav-link "
+                    href="/login"
+                    style={{ fontSize: "24px" }}
+                    onLogin={(token) => {
+                      isAuthenticated(true);
+                    }}
+                  >
+                    Login
+                  </a>
+                  {/* <LoginModal
                     onLogin={(token) => {
                       setIsAuthenticated(true);
                     }}
-                  />
+                  /> */}
                 </li>
               </>
             )}
             <li className="nav-item">
-              <Button variant="secondary" onClick={() => navigate("/cart")}>
+              <Button
+                variant="secondary"
+                onClick={() => navigate("/cart")}
+                style={{
+                  fontSize: "20px",
+                  background: "#5c460b",
+                  borderRadius: "20px",
+                }}
+              >
                 Cart ({cartItemsCount})
               </Button>
             </li>
