@@ -2,9 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Start back end ( giving a specific port)
+
+mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8082"
+
 ## Available Scripts
 
-In the project directory, you can run:
+In the project directory ( front end), you can run:
 
 ### `npm start`
 
