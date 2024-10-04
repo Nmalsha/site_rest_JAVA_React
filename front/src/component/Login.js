@@ -9,10 +9,22 @@ const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Check if the email format is valid
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:8081/api/user/login",
@@ -31,12 +43,21 @@ const Login = ({ onLogin }) => {
 
       navigate("/");
     } catch (error) {
-      console.error(
-        alert(
-          "EInvalid email or password. Please try again.rror during login:",
-          error
-        )
-      );
+      if (error.response) {
+        if (error.response.status === 401) {
+          // Incorrect password
+          setError("Incorrect password. Please try again.");
+        } else if (error.response.status === 404) {
+          // Email not found
+          setError("Email not found. Please check your email.");
+        } else {
+          // Other errors (e.g., server down, etc.)
+          setError("An error occurred during login. Please try again later.");
+        }
+      } else {
+        // If no response from the server
+        setError("Network error. Please check your connection.");
+      }
     }
   };
 
@@ -85,6 +106,7 @@ const Login = ({ onLogin }) => {
             ></Modal.Header>
             <Modal.Body>
               <Form onSubmit={handleSubmit}>
+                {error && <div style={styles.errorText}>{error}</div>}
                 <Form.Group
                   className="mb-3 overlay-content"
                   controlId="formBasicEmail"

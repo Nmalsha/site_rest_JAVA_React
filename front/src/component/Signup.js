@@ -12,8 +12,28 @@ const Signup = (onSignup) => {
 
   const navigate = useNavigate();
 
+  const [errors, setErrors] = useState({});
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setErrors({});
+    const newErrors = {};
+    if (!nickname) newErrors.nickname = "Nickname is required";
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email is invalid";
+    }
+    if (!password || password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:8081/api/user/register",
@@ -83,6 +103,9 @@ const Signup = (onSignup) => {
                     onChange={(e) => setNickname(e.target.value)}
                     required
                   />
+                  {errors.nickname && (
+                    <div style={styles.errorText}>{errors.nickname}</div>
+                  )}
                 </Form.Group>
                 <Form.Group className="mb-4" controlId="formBasicEmail">
                   <Form.Control
@@ -92,6 +115,9 @@ const Signup = (onSignup) => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
+                  {errors.email && (
+                    <div style={styles.errorText}>{errors.email}</div>
+                  )}
                 </Form.Group>
                 <Form.Group className="mb-4" controlId="formBasicPassword">
                   <Form.Control
@@ -101,6 +127,9 @@ const Signup = (onSignup) => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  {errors.password && (
+                    <div style={styles.errorText}>{errors.password}</div>
+                  )}
                 </Form.Group>
 
                 <Button
