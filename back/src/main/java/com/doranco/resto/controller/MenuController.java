@@ -65,11 +65,11 @@ public class MenuController {
                 String fileName = StringUtils.cleanPath(image.getOriginalFilename());
                 Path imagePath = Paths.get(uploadDir, fileName);
 
-                // Ensure the directory exists
+            
                 Files.createDirectories(imagePath.getParent());
 
                 Files.copy(image.getInputStream(), imagePath);
-                // Assuming image property is a String storing the file URL
+                
                 // menu.setImage("/images/" + fileName);
 
                 String imageUrl = "http://localhost:" + serverPort + "/images/" + fileName;
@@ -98,7 +98,7 @@ public class MenuController {
         if (menuOptional.isPresent()) {
             Menu menu = menuOptional.get();
 
-            // Delete associated image file if it exists
+           
             if (menu.getImage() != null) {
                 String fileName = menu.getImage().substring(menu.getImage().lastIndexOf("/") + 1);
                 Path imagePath = Paths.get(uploadDir, fileName);
@@ -106,16 +106,16 @@ public class MenuController {
                 try {
                     Files.deleteIfExists(imagePath);
                 } catch (IOException e) {
-                    // Handle file deletion failure
+             
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 }
             }
             List<Comment> comments = menu.getComments();
             for (Comment comment : comments) {
-                // Delete each comment from database
+           
                 commentService.deleteComment(comment.getId());
             }
-            // Delete the menu item from the database
+           
             if (menuService.deleteMenu(id)) {
                 return ResponseEntity.noContent().build();
             } else {
@@ -124,10 +124,6 @@ public class MenuController {
         } else {
             return ResponseEntity.notFound().build();
         }
-        // if (menuService.deleteMenu(id)) {
-        //     return ResponseEntity.noContent().build();
-        // } else {
-        //     return ResponseEntity.notFound().build();
-        // }
+     
     }
 }

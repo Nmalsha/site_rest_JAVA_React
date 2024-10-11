@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.AuthenticationException;
-
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,7 +44,7 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Register a new user
+    
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {    
 
@@ -56,7 +56,7 @@ public class UserController {
 
         List<String> roles = user.getRoles();
         if (roles == null || roles.isEmpty()) {
-            // Set default role if none provided (optional, based on your app logic)
+            
             roles = List.of("ROLE_USER");
             user.setRoles(roles);
         }
@@ -65,13 +65,13 @@ public class UserController {
         return ResponseEntity.ok(createdUser);
     }
 
-    // Get all users
+   
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    // Get user by ID
+    
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
@@ -82,7 +82,7 @@ public class UserController {
         }
     }
 
-    // Update user by ID
+    
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
         Optional<User> user = userService.getUserById(id);
@@ -98,7 +98,7 @@ public class UserController {
         }
     }
 
-    // Delete user by ID
+   
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         if (userService.deleteUser(id)) {
@@ -108,7 +108,7 @@ public class UserController {
         }
     }
 
-    // Login user
+
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User loginUser) {
         try {
@@ -119,13 +119,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
     
-        // Load user details
+       
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginUser.getEmail());
     
-        // Generate JWT
+     
         String jwt = jwtUtil.generateToken(userDetails);
     
-        // Fetch user details from repository
+       
         Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
         
         if (optionalUser.isPresent()) {
@@ -140,7 +140,7 @@ public class UserController {
 
             return ResponseEntity.ok(new JwtResponse(jwt));
         } else {
-            // Handle case where user is not found (optionalUser is empty)
+            
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         

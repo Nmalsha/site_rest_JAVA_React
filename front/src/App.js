@@ -42,7 +42,8 @@ function App() {
   }, []);
 
   const handleAddToCart = (selectedDish) => {
-    setCart([...cart, selectedDish]);
+    setCart((prevCart) => [...prevCart, selectedDish]);
+    // setCart([...cart, selectedDish]);
   };
   const handleRemoveFromCart = (index) => {
     console.log("checking index", index);

@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-@Entity
+@Entity 
 public class Menu {
 
     @Id

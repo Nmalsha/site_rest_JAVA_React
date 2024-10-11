@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Start back end ( giving a specific port)
 
-mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8082"
+mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8081"
 
 ## Available Scripts
 

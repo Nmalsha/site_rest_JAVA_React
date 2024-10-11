@@ -76,32 +76,88 @@ const Diches = ({ handleAddToCart }) => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cart));
+    // localStorage.setItem("cartItems", JSON.stringify(cart));
+    const storedCartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+    setCart(storedCartItems);
   }, [cart]);
 
   //add to cart
-  const addToCart = (dish) => {
-    console.log("diche", dish);
+  // const addToCart = (dish) => {
+  //   console.log("diche", dish);
+  //   if (dish && dish.id) {
+  //     const selectedDish = {
+  //       id: dish.id,
+  //       dishName: dish.dishName,
+  //       price: dish.price,
+  //       quantity: 1,
+  //     };
+
+  //     setCart((prevCart) => {
+  //       const updatedCart = [...prevCart, selectedDish];
+  //       handleAddToCart(selectedDish);
+  //       return updatedCart;
+  //     });
+  //   } else {
+  //     console.error("Menu object or its id property is undefined");
+  //   }
+  // };
+
+  const addToCart = async (dish) => {
+    console.log("Selected dish:", dish);
     if (dish && dish.id) {
       const selectedDish = {
-        id: dish.id,
+        menuId: dish.id,
         dishName: dish.dishName,
         price: dish.price,
+        quantity: 1,
+        userId: localStorage.getItem("userId"),
       };
 
-      setCart((prevCart) => {
-        const updatedCart = [...prevCart, selectedDish];
-        handleAddToCart(selectedDish);
-        return updatedCart;
-      });
+      try {
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("jwtToken");
+        if (!userId) {
+          alert("You need to be logged in to add items to your cart.");
+          return;
+        }
 
-      // console.log("Selected dish added to cart:", selectedDish);
+        // Add the cart item to the backend
+        const response = await axios.post(
+          `http://localhost:8081/api/cart/add`,
+          { ...selectedDish, user: { id: userId } },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("CartItem response:", response.data);
+        // Update local cart state
+        if (response.status === 201) {
+          console.log("Item added to cart:", response.data);
+
+          // Update local cart state
+          setCart((prevCart) => [...prevCart, selectedDish]);
+          localStorage.setItem(
+            "cartItems",
+            JSON.stringify([...cart, selectedDish])
+          );
+        }
+        // setCart((prevCart) => [...prevCart, selectedDish]);
+        // localStorage.setItem(
+        //   "cartItems",
+        //   JSON.stringify([...cart, selectedDish])
+        // );
+
+        // console.log("Selected dish added to cart:", selectedDish);
+      } catch (error) {
+        console.error("Error adding dish to cart:", error);
+      }
     } else {
       console.error("Menu object or its id property is undefined");
     }
   };
-
-  let userId = localStorage.getItem("userId");
 
   const handleLike = (dishIndex) => {
     setLikes((prevLikes) => {
