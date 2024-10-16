@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.nio.file.Paths;
 import java.util.List;
@@ -53,6 +54,7 @@ public class MenuController {
     }
 
    @PostMapping(consumes = { "multipart/form-data" })
+   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Menu> createMenu(
         @RequestPart("menu") String menuJson, 
         @RequestPart("image") MultipartFile image

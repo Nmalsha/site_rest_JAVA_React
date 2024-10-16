@@ -35,11 +35,10 @@ const Login = ({ onLogin }) => {
       );
       console.log("clicked");
       onLogin(response.data);
-      // console.log("response.data", response.data);
+
       const catchedToken = response.data;
-      console.log("catched token:", catchedToken);
+
       const decodedToken = jwtDecode(catchedToken);
-      console.log("decoded token:", decodedToken);
       localStorage.setItem("jwtToken", catchedToken);
       localStorage.setItem("userId", decodedToken.id);
       localStorage.setItem("nickname", decodedToken.nickname);
@@ -49,17 +48,13 @@ const Login = ({ onLogin }) => {
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
-          // Incorrect password
           setError("Incorrect password. Please try again.");
         } else if (error.response.status === 404) {
-          // Email not found
           setError("Email not found. Please check your email.");
         } else {
-          // Other errors (e.g., server down, etc.)
           setError("An error occurred during login. Please try again later.");
         }
       } else {
-        // If no response from the server
         setError("Network error. Please check your connection.");
       }
     }

@@ -3,22 +3,20 @@ package com.doranco.resto.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
-import org.springframework.beans.factory.annotation.Value;
+
 import com.doranco.resto.entity.User; 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.List;
+
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 
 @Component
