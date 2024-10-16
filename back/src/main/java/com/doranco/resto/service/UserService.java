@@ -9,11 +9,13 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.userdetails.UserDetails;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Optional;
+import javax.crypto.SecretKey;
 
 @Service
 public class UserService {
@@ -21,11 +23,13 @@ public class UserService {
    @Autowired
     private UserRepository userRepository;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
+//
+//    @Value("${jwt.secret}")
+//    private String jwtSecret;
+//
+//    @Value("${jwt.expiration}")
+//    private long jwtExpiration;
 
     public User createUser(User user) {
         List<String> roles = new ArrayList<>();
@@ -59,12 +63,5 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public String generateToken(User user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS512)
-                .compact();
-    }
+	
 }

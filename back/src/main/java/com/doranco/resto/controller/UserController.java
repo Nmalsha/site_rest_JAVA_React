@@ -2,8 +2,9 @@ package com.doranco.resto.controller;
 
 import com.doranco.resto.entity.User;
 import com.doranco.resto.repository.UserRepository;
+import com.doranco.resto.security.JwtUtil;
 import com.doranco.resto.service.UserService;
-import com.doranco.resto.util.JwtUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -37,6 +39,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+
 
     @Autowired
     private UserRepository userRepository;
@@ -108,43 +112,71 @@ public class UserController {
         }
     }
 
+    @PostMapping("login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
 
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User loginUser) {
-        try {
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginUser.getEmail(), loginUser.getPassword())
-            );
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+
+        Optional<User> user = userService.findByEmail(email);
+
+        if (user.isEmpty()) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
-    
-       
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginUser.getEmail());
-    
-     
-        String jwt = jwtUtil.generateToken(userDetails);
-    
-       
-        Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
-        
-        if (optionalUser.isPresent()) {
-            // User existingUser = optionalUser.get();
-            // String nickname = existingUser.getNickname();
-            // Long id = existingUser.getId();
-            // System.out.println("Retrieved nickname: " + nickname);
-            // System.out.println("Retrieved connected user Id: " + id);
-            // // Return response with JWT and nickname
 
-        
-
-            return ResponseEntity.ok(new JwtResponse(jwt));
-        } else {
-            
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+   
+        if (!passwordEncoder.matches(password, user.get().getPassword())) {
+            return new ResponseEntity<>("Mot de passe incorrect", HttpStatus.UNAUTHORIZED);
         }
-        
+
+
+        String jwt = jwtUtil.generateToken(user.get());
+
+        return ResponseEntity.ok(jwt);
     }
+//    @PostMapping("/login")
+//    public ResponseEntity<?> loginUser(@RequestBody User loginUser) {
+//        try {
+//            authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(loginUser.getEmail(), loginUser.getPassword())
+//            );
+//        } catch (AuthenticationException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+//        }
+//    
+//   
+//       
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(loginUser.getEmail());
+//    
+//     
+//        String jwt = jwtUtil.generateToken(userDetails);
+//    
+//       
+//        Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
+//        
+//         //check password
+//    if(passwordEncoder.matches(loginUser.getPassword(),optionalUser.get().getPassword()) && optionalUser.isPresent()){
+//          return ResponseEntity.ok(new JwtResponse(jwt));
+//    }
+
+        // if (optionalUser.isPresent()) {
+        //     // User existingUser = optionalUser.get();
+        //     // String nickname = existingUser.getNickname();
+        //     // Long id = existingUser.getId();
+        //     // System.out.println("Retrieved nickname: " + nickname);
+        //     // System.out.println("Retrieved connected user Id: " + id);
+        //     // // Return response with JWT and nickname
+
+        
+
+        //     return ResponseEntity.ok(new JwtResponse(jwt));
+        // } 
+//        else {
+//            
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+//        }
+//        
+//    }
     
     
 }

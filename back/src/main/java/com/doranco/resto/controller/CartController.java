@@ -59,8 +59,15 @@ public class CartController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
-        cartItemService.deleteCartItem(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteCartItem(@PathVariable Long id) {
+    	  try {
+              cartItemService.deleteCartItem(id);
+              return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); 
+          } catch (RuntimeException e) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+          } catch (Exception e) {
+              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                      .body("An unexpected error occurred.");
+          }
     }
 }

@@ -64,6 +64,10 @@ public class CartItemService {
     }
 
     public void deleteCartItem(Long id) {
-        cartItemRepository.deleteById(id);
+    	  if (!cartItemRepository.existsById(id)) {
+              throw new RuntimeException("Cart item not found");
+          }
+
+               cartItemRepository.deleteById(id);
     }
 }

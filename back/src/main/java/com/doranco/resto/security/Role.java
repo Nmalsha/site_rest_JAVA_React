@@ -1,4 +1,4 @@
-package com.doranco.resto.util;
+package com.doranco.resto.security;
 
 public enum Role {
     ROLE_USER,

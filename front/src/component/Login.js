@@ -33,9 +33,13 @@ const Login = ({ onLogin }) => {
           password,
         }
       );
-      onLogin(response.data.token);
-      const catchedToken = response.data.token;
+      console.log("clicked");
+      onLogin(response.data);
+      // console.log("response.data", response.data);
+      const catchedToken = response.data;
+      console.log("catched token:", catchedToken);
       const decodedToken = jwtDecode(catchedToken);
+      console.log("decoded token:", decodedToken);
       localStorage.setItem("jwtToken", catchedToken);
       localStorage.setItem("userId", decodedToken.id);
       localStorage.setItem("nickname", decodedToken.nickname);
