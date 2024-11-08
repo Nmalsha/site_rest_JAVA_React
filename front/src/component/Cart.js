@@ -8,7 +8,24 @@ const Cart = ({ onDeleteItem }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cart));
+    const userId = localStorage.getItem("userId");
+    const fetchCart = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8081/api/cart/user/${userId}`
+        );
+        const data = await response.json();
+        localStorage.setItem("cartItems", JSON.stringify(data));
+        console.log("cart items:", data);
+        if (!response.ok) {
+          throw new Error("Failed to fetch menu data");
+        }
+        // localStorage.setItem("cartItems", JSON.stringify(cart));
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+      }
+    };
+    fetchCart();
   }, [cart]);
 
   useEffect(() => {
