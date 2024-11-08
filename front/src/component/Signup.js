@@ -36,7 +36,7 @@ const Signup = (onSignup) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8081/api/user/register",
+        "http://backend:8081/api/user/register",
         {
           email,
           nickname,

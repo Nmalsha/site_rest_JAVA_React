@@ -1,0 +1,32 @@
+services:
+  frontend:
+    build: ./front
+    ports:
+      - "3000:80"
+    networks:
+      - resto-network
+
+  backend:
+    build: ./back
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/resto
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - resto-network
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: resto
+    ports:
+      - "3307:3306"
+    networks:
+      - resto-network
+
+networks:
+  resto-network:

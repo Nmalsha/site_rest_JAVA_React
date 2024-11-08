@@ -104,58 +104,64 @@ const Diches = ({ handleAddToCart }) => {
 
   const addToCart = async (dish) => {
     console.log("Selected dish:", dish);
-    if (dish && dish.id) {
-      const selectedDish = {
-        menuId: dish.id,
-        dishName: dish.dishName,
-        price: dish.price,
-        quantity: 1,
-        userId: localStorage.getItem("userId"),
-      };
+    const isConfirmed = window.confirm(
+      "Are you sure you want to add this dish to the cart?"
+    );
 
-      try {
-        const userId = localStorage.getItem("userId");
-        const token = localStorage.getItem("jwtToken");
-        if (!userId) {
-          alert("You need to be logged in to add items to your cart.");
-          return;
-        }
+    if (isConfirmed) {
+      if (dish && dish.id) {
+        const selectedDish = {
+          menuId: dish.id,
+          dishName: dish.dishName,
+          price: dish.price,
+          quantity: 1,
+          userId: localStorage.getItem("userId"),
+        };
 
-        // Add the cart item to the backend
-        const response = await axios.post(
-          `http://localhost:8081/api/cart/add`,
-          { ...selectedDish, user: { id: userId } },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+        try {
+          const userId = localStorage.getItem("userId");
+          const token = localStorage.getItem("jwtToken");
+          if (!userId) {
+            alert("You need to be logged in to add items to your cart.");
+            return;
           }
-        );
-        console.log("CartItem response:", response.data);
-        // Update local cart state
-        if (response.status === 201) {
-          console.log("Item added to cart:", response.data);
 
-          // Update local cart state
-          setCart((prevCart) => [...prevCart, selectedDish]);
-          localStorage.setItem(
-            "cartItems",
-            JSON.stringify([...cart, selectedDish])
+          // Add the cart item to the backend
+          const response = await axios.post(
+            `http://localhost:8081/api/cart/add`,
+            { ...selectedDish, user: { id: userId } },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
-        }
-        // setCart((prevCart) => [...prevCart, selectedDish]);
-        // localStorage.setItem(
-        //   "cartItems",
-        //   JSON.stringify([...cart, selectedDish])
-        // );
+          console.log("CartItem response:", response.data);
+          // Update local cart state
+          if (response.status === 201) {
+            console.log("Item added to cart:", response.data);
 
-        // console.log("Selected dish added to cart:", selectedDish);
-      } catch (error) {
-        console.error("Error adding dish to cart:", error);
+            // Update local cart state
+            setCart((prevCart) => [...prevCart, selectedDish]);
+            localStorage.setItem(
+              "cartItems",
+              JSON.stringify([...cart, selectedDish])
+            );
+          }
+          // setCart((prevCart) => [...prevCart, selectedDish]);
+          // localStorage.setItem(
+          //   "cartItems",
+          //   JSON.stringify([...cart, selectedDish])
+          // );
+
+          // console.log("Selected dish added to cart:", selectedDish);
+        } catch (error) {
+          console.error("Error adding dish to cart:", error);
+        }
+      } else {
+        console.error("Menu object or its id property is undefined");
       }
-    } else {
-      console.error("Menu object or its id property is undefined");
     }
   };
 
