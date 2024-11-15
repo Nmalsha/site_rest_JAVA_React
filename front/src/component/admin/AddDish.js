@@ -36,12 +36,17 @@ const AddDish = ({ onDishAdded }) => {
       );
       if (image) formData.append("image", image);
 
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
       const response = await axios.post(
         "http://localhost:8081/api/menus",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
           },
         }
       );

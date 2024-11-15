@@ -68,6 +68,11 @@ public class CartItemService {
               throw new RuntimeException("Cart item not found");
           }
 
-               cartItemRepository.deleteById(id);
+    	  try {
+    	        cartItemRepository.deleteById(id);
+    	    } catch (Exception e) {
+    	        System.out.println("Error deleting cart item with ID " + id + ": " + e.getMessage());
+    	        throw new RuntimeException("Failed to delete cart item due to database error.");
+    	    }
     }
 }

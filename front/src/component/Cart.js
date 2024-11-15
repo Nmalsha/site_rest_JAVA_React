@@ -1,45 +1,82 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button } from "react-bootstrap";
+import axios from "axios";
 
-const Cart = ({ onDeleteItem }) => {
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem("cartItems");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+const Cart = ({ cart, setCart, setCartItemsCount }) => {
+  // const [cart, setCart] = useState(() => {
+
+  //   const savedCart = localStorage.getItem("cartItems");
+  //   return savedCart ? JSON.parse(savedCart) : [];
+  // });
+  const [localCart, setLocalCart] = useState(cart);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    setLocalCart(cart);
+  }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(localCart));
+    // setCartItemsCount(localCart.length);
+  }, [localCart, setCartItemsCount]);
+
+  // const [dishes, setDishes] = useState([]);
+  // const [cartCount, setCartCount] = useState(dishes.length);
+  const userId = localStorage.getItem("userId");
+  useEffect(() => {
     const fetchCart = async () => {
       try {
         const response = await fetch(
           `http://localhost:8081/api/cart/user/${userId}`
         );
         const data = await response.json();
-        localStorage.setItem("cartItems", JSON.stringify(data));
-        console.log("cart items:", data);
-        if (!response.ok) {
-          throw new Error("Failed to fetch menu data");
+        setLocalCart(data);
+        setCart(data);
+        if (data !== null) {
+          localStorage.setItem("cartItems", JSON.stringify(data));
+        } else {
+          throw new Error("The cart is empty");
         }
-        // localStorage.setItem("cartItems", JSON.stringify(cart));
+
+        console.log("cart items:", data);
       } catch (error) {
         console.error("Error fetching cart data:", error);
       }
     };
     fetchCart();
-  }, [cart]);
+  }, [userId]);
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cartItems");
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
+  // useEffect(() => {
+  //   const savedCart = localStorage.getItem("cartItems");
+  //   if (savedCart) {
+  //     setCart(JSON.parse(savedCart));
+  //   }
+  // }, []);
+
+  const handleRemoveFromCart = async (id) => {
+    console.error("item idex:", id);
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const response = await axios.delete(
+        `http://localhost:8081/api/cart/item/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updatedCart = localCart.filter((item) => item.id !== id);
+      setLocalCart(updatedCart);
+      setCart(updatedCart);
+      alert("Menu item deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      alert("Failed to delete menu item");
     }
-  }, []);
-
-  const handleRemoveFromCart = (index) => {
-    console.log("Removing item at index:", index);
-    const newCartItems = cart.filter((_, i) => i !== index);
-    setCart(newCartItems);
-    onDeleteItem(index);
+    // console.log("Removing item at index:", index);
+    // const newCartItems = cart.filter((_, i) => i !== index);
+    // setCart(newCartItems);
+    // onDeleteItem(index);
   };
 
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
@@ -74,8 +111,7 @@ const Cart = ({ onDeleteItem }) => {
                     <Button
                       variant="danger"
                       onClick={() => {
-                        console.log("Removing item at index:", index);
-                        handleRemoveFromCart(index);
+                        handleRemoveFromCart(item.id);
                       }}
                     >
                       Remove

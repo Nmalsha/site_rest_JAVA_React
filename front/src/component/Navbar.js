@@ -18,6 +18,13 @@ const Navbar = ({ isAuthenticated, onLogin, onLogout, cart }) => {
   //   const savedCart = localStorage.getItem("cartItems");
   //   return savedCart ? JSON.parse(savedCart) : [];
   // });
+  useEffect(() => {
+    const nickName = localStorage.getItem("nickname");
+
+    if (nickName && onLogin) {
+      onLogin(nickName);
+    }
+  }, [onLogin]);
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cartItems");

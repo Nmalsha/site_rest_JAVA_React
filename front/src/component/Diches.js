@@ -77,8 +77,11 @@ const Diches = ({ handleAddToCart }) => {
 
   useEffect(() => {
     // localStorage.setItem("cartItems", JSON.stringify(cart));
-    const storedCartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
-    setCart(storedCartItems);
+    // const storedCartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+    // if (storedCartItems) {
+    //   setCart(storedCartItems);
+    // }
+    //
   }, [cart]);
 
   //add to cart

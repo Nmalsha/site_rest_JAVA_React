@@ -29,6 +29,11 @@ function App() {
     isAdmin: false,
   });
 
+  const [cart, setCart] = useState(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
+  const cartItemsCount = cart.length;
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     if (token) {
@@ -41,17 +46,27 @@ function App() {
     }
   }, []);
 
+  // const handleAddToCart = (selectedDish) => {
+  //   setCart((prevCart) => [...prevCart, selectedDish]);
+  //   // setCart([...cart, selectedDish]);
+  // };
+  // const handleRemoveFromCart = (index) => {
+  //   console.log("checking index", index);
+  //   const newCart = cart.filter((_, i) => i !== index);
+  //   setCart(newCart);
+  //   // localStorage.setItem("cartItems", JSON.stringify(newCart));
+  // };
   const handleAddToCart = (selectedDish) => {
-    setCart((prevCart) => [...prevCart, selectedDish]);
-    // setCart([...cart, selectedDish]);
+    const updatedCart = [...cart, selectedDish];
+    setCart(updatedCart);
+    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
   };
+
   const handleRemoveFromCart = (index) => {
-    console.log("checking index", index);
     const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
     localStorage.setItem("cartItems", JSON.stringify(newCart));
   };
-
   const handleLogin = (nickname) => {
     setUserNickname(nickname);
   };
@@ -63,7 +78,7 @@ function App() {
       isAdmin: false,
     });
   };
-  const [cart, setCart] = useState([]);
+
   return (
     <Router>
       <div className="App">
@@ -74,8 +89,8 @@ function App() {
           userName={authState.userName}
           isAdmin={authState.isAdmin}
           onLogout={handleLogout}
-          onLogin={handleLogin}
           userNickname={userNickname}
+          cartItemsCount={cartItemsCount}
         />
         <Routes>
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
@@ -95,7 +110,14 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route
             path="/cart"
-            element={<Cart cart={cart} onDeleteItem={handleRemoveFromCart} />}
+            element={
+              <Cart
+                cart={cart}
+                onDeleteItem={handleRemoveFromCart}
+                setCart={setCart}
+                cartItemsCount={cartItemsCount}
+              />
+            }
           />
           <Route
             path="/error"

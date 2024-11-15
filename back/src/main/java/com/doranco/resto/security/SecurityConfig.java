@@ -36,10 +36,13 @@ public class SecurityConfig {
                 .antMatchers("/api/user/login").permitAll()
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/api/menus/**").permitAll()
+                .antMatchers("/api/menus").hasRole("ROLE_ADMIN")
                 .antMatchers("/api/comment/**").permitAll()
 				.antMatchers("/api/cart/**").permitAll()
+				.antMatchers("/api/cart/item/**").permitAll()
                 .antMatchers("/api/comment/by-dish/*").permitAll()
                 .anyRequest().authenticated()
+                
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

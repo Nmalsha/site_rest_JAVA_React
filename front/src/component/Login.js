@@ -34,7 +34,7 @@ const Login = ({ onLogin }) => {
         }
       );
       console.log("clicked");
-      onLogin(response.data);
+      onLogin && onLogin(response.data);
 
       const catchedToken = response.data;
 
