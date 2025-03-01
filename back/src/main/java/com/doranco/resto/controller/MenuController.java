@@ -81,8 +81,13 @@ public class MenuController {
             }
           
             Menu savedMenu = menuService.createMenu(menu);
+            System.out.println("Saved menu: " + savedMenu); 
+if (savedMenu == null) {
+    System.out.println("Failed to save menu.");
+}
             return ResponseEntity.status(HttpStatus.CREATED).body(savedMenu);
         } catch (IOException e) {
+             e.printStackTrace(); 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

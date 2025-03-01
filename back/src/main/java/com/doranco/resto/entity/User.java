@@ -77,7 +77,7 @@ public class User implements UserDetails {
         return roles;
     }
 
-    // Setter for roles
+    
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
@@ -93,7 +93,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;  // Assuming email is used as the username
+        return email;  
     }
 
     @Override

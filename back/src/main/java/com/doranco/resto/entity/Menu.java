@@ -7,6 +7,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity 
+
 public class Menu {
 
     @Id
@@ -25,6 +26,19 @@ public class Menu {
     @JsonManagedReference("menu-comments")
     private List<Comment> comments;
 
+    public Menu() {}
+    
+    // Custom constructor
+    public Menu(Long id, String dishName, String description, double price, String image) {
+        this.id = id;
+        this.dishName = dishName;
+        this.description = description;
+        this.price = price;
+        this.image = image;
+    }
+    
+    
+    
     public Long getId() {
         return id;
     }

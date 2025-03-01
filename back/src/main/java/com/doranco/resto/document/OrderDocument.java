@@ -5,27 +5,27 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Document(collection = "orders")
+@Document(collection = "order")
 public class OrderDocument {
 
-   @Id
-   private String id;
-   private String userId;
-   private LocalDateTime orderDate;
-   private List<OrderItem> items;
-   private Double totalAmount;
-   private String paymentStatus;
-   private String paymentMethod;
+  @Id
+  private String id;
+  private String userId;
+  private LocalDateTime orderDate;
+  private List<OrderItem> items;
+  private Double totalAmount;
+  private String paymentStatus;
+  private String paymentMethod;
 
-   // Nested class to represent each item in the order
-   public static class OrderItem {
-       private String menuItemId;
-       private String itemName;
-       private int quantity;
-       private double price;
+ 
+  public static class OrderItem {
+      private String menuItemId;
+      private String itemName;
+      private int quantity;
+      private double price;
 
-       // Getters and setters
-   }
+      // Getters and setters
+  }
 
 public String getId() {
 	return id;
