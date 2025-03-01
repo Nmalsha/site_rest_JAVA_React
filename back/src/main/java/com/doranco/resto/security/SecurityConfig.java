@@ -32,6 +32,7 @@ public class SecurityConfig {
 	        .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(authorize -> authorize
+			.antMatchers("/images/**").permitAll()
                 .antMatchers("/api/user/register").permitAll()
                 .antMatchers("/api/user/login").permitAll()
                 .antMatchers("/images/**").permitAll()
