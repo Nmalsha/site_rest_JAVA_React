@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.doranco.resto.service.CommentService;
-
+import org.apache.commons.text.StringEscapeUtils; 
 import java.util.List;
 import java.util.Optional;
 
@@ -18,12 +18,16 @@ public class CommentController {
 
     @GetMapping("/comment")
     public List<Comment> getAllComments() {
-        return commentService.getAllComments();
+        List<Comment> comments = commentService.getAllComments();
+        comments.forEach(comment -> comment.setContent(StringEscapeUtils.escapeHtml4(comment.getContent())));
+        return comments;
+        // return commentService.getAllComments();
     }
 
     @GetMapping("/comment/by-dish/{dishId}")
     public ResponseEntity<List<Comment>> getCommentsByDishId(@PathVariable Long dishId) {
         List<Comment> comments = commentService.getCommentsByDishId(dishId);
+        comments.forEach(comment -> comment.setContent(StringEscapeUtils.escapeHtml4(comment.getContent())));
         return ResponseEntity.ok(comments);
     }
 

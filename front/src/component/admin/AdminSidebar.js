@@ -50,6 +50,15 @@ const AdminSidebar = () => {
             <FontAwesomeIcon icon={faClipboardList} /> Orders Details
           </Link>
         </li>
+        <li className="nav-item">
+          <Link
+            to="comment-details"
+            className="nav-link"
+            style={{ color: "black", marginTop: "15px" }}
+          >
+            <FontAwesomeIcon icon={faClipboardList} /> Comments Details
+          </Link>
+        </li>
       </ul>
     </div>
   );

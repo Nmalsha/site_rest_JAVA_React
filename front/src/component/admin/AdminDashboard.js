@@ -5,6 +5,7 @@ import MenuTable from "./MenuTable";
 import UserDetails from "./UserDetails";
 import AdminSidebar from "./AdminSidebar";
 import OrderDetails from "./OrderDetails";
+import CommentDetails from "./CommentDetails";
 
 const AdminDashboard = () => {
   const [dishes, setDishes] = useState([]);
@@ -31,6 +32,7 @@ const AdminDashboard = () => {
           <Route path="user-details" element={<UserDetails />} />
 
           <Route path="order-details" element={<OrderDetails />} />
+          <Route path="comment-details" element={<CommentDetails />} />
         </Routes>
       </div>
     </div>
